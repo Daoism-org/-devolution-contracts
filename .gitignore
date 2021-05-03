@@ -1,7 +1,16 @@
-node_modules
+# Project specific
+deployments
+optimism
 
-node_modules
+# environment variables
+.env
+.env.local
 
-#Hardhat files
-cache
-artifacts
+# Packages
+node_modules/
+
+# Hardhat build outputs
+artifacts/
+artifacts-ovm/
+cache/
+cache-ovm
