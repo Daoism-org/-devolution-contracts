@@ -1,7 +1,9 @@
-require('@eth-optimism/hardhat-ovm')
-require('@nomiclabs/hardhat-ethers')
-require('@nomiclabs/hardhat-waffle')
-require('hardhat-deploy')
+require('@eth-optimism/hardhat-ovm');
+require('@nomiclabs/hardhat-ethers');
+require('@nomiclabs/hardhat-waffle');
+require('hardhat-contract-sizer');
+require('hardhat-docgen');
+require('hardhat-deploy');
 
 module.exports = {
   networks: {
@@ -30,4 +32,14 @@ module.exports = {
   namedAccounts: {
     deployer: 0
   },
+  contractSizer: {
+    alphaSort: true,
+    runOnCompile: true,
+    disambiguatePaths: false,
+  },
+  docgen: {
+    path: './docs/generated-docs',
+    clear: true,
+    runOnCompile: true,
+  }
 }

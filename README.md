@@ -19,6 +19,11 @@ Please make sure you've installed the following before continuing:
 - [Yarn](https://classic.yarnpkg.com/en/docs/install#mac-stable)
 - [Docker](https://docs.docker.com/engine/install/)
 
+Please ensure your `node` is on at least version `12.10.0`. This can be checked by running:
+```
+node -v
+```
+
 ## Compiling 
 
 To compile the contracts run:
