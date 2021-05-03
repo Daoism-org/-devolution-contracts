@@ -28,7 +28,7 @@ yarn build
 
 ## Testing
 
-In order to test the smart contracts, we need to make a local Optimism instance to run the tests on. It is recommended to use two terminals for the following in order to keep things readable. 
+In order to test the smart contracts, we need to make a local Optimism instance to run the tests on. Before following the instructions below, please ensure you have [docker installed and set up](https://docs.docker.com/engine/install/). It is recommended to use two terminals for the following in order to keep things readable. 
 
 In your second terminal, run the following:
 ```sh
