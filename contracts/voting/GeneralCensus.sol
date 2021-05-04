@@ -18,13 +18,20 @@ contract GeneralCensus {
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
 
+    /**
+     * @param   _voterCo Address of the voter coordinator.
+     * @param   _minVotes The minimum number of votes needed for a proposal
+     *          election to pass. 
+     * @param   _minWeight The minimum needed weight for a proposal election to
+     *          pass. 
+     */
     constructor(
         address _voterCo,
         uint256 _minVotes,
         uint256 _minWeight
     ) {
         voteCoImp_ = VotingCoordinator(_voterCo);
-        _isCurrent();
+        this.isCurrent(); // TODO this might fail on deploy
         minimumVotes = _minVotes;
         minimumWeight = _minWeight;
     }
@@ -32,6 +39,13 @@ contract GeneralCensus {
     // -------------------------------------------------------------------------
     // NON-MODIFYING FUNCTIONS
 
+    /**
+     * @param   _propID The ID of the proposal election being checked.
+     * @return  consensusReached If a simple majority consensus has been 
+     *          reached.
+     * @return  isPassed If a simple majority consensus is for the proposal
+     *          passing. 
+     */
     function doesElectionReachConsensus(
         uint256 _propID
     ) 
@@ -82,29 +96,60 @@ contract GeneralCensus {
     // -------------------------------------------------------------------------
     // STATE MODIFYING FUNCTIONS
 
+    /**
+     * @param   _propID The ID of the proposal election being executed.
+     * @notice  This function will revert if the vote window for a proposal 
+     *          has not passed. 
+     *          This function will revert if the proposal has already been 
+     *          executed or dismissed.
+     */
     function executeProposal(uint256 _propID) external {
-        _isCurrent();
+        this.isCurrent();
 
         require(
            storageImp_.isProposalInVoteWindow(_propID) == false,
            "Cannot execute while vote open"
         );
+        require(
+            storageImp_.isProposalExecutedOrDismissed(_propID) == false,
+           "Proposal executed or dismissed"
+        );
+
         // Checking consensus was reached
         (
             bool consensusReached,
             bool isPassed
         ) = this.doesElectionReachConsensus(_propID);
-        require(
-           consensusReached && isPassed,
-           "Consensus not reached"
-        );
+        
+        if(consensusReached && isPassed) {
+            // Proposal reached consensus and passed
+            // TODO call options registry to execute
+        } else {
+            // Proposal did not reach consensus or did not pass
+        }
+        // Setting the proposal to executed or dismissed
+        storageImp_.setProposalExecutedOrDismissed(_propID);
+    }
 
-        // TODO call options registry to execute
+    /**
+     * @notice  Ensures that the current storage implementation is correct.
+     */
+    function isCurrent() external {
+        address received = voteCoImp_.getStorage();
+        if(address(storageImp_) != received) {
+            storageImp_ = VoteStorage(received);
+        }
     }
 
     // -------------------------------------------------------------------------
     // INTERNAL FUNCTIONS
 
+    /**
+     * @param   _for Counter for the proposal.
+     * @param   _against Counter against the proposal.
+     * @return  majorityReached If a majority was reached.
+     * @return  isFor If the majority is for the proposal to pass.
+     */
     function _simpleMajority(
         uint256 _for, 
         uint256 _against
@@ -124,6 +169,11 @@ contract GeneralCensus {
         return (false, false);
     }
 
+    /**
+     * @param   _propID The ID of the proposal election being checked.
+     * @return  bool Returns if the proposal reaches the minimum required 
+     *          engagement in voters and total vote weight. 
+     */
     function _minEngagementReached(uint256 _propID) internal view returns(bool) {
         (
             uint256 totalVotes,
@@ -136,12 +186,5 @@ contract GeneralCensus {
             return true;
         }
         return false;
-    }
-
-    function _isCurrent() internal {
-        address received = voteCoImp_.getStorage();
-        if(address(storageImp_) != received) {
-            storageImp_ = VoteStorage(received);
-        }
     }
 }

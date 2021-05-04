@@ -15,8 +15,7 @@ contract VoteStorage {
         uint256 expiry;
         BallotCount votesFor;
         BallotCount votesAgainst;
-        bool consensusReached;
-        bool motionPassed;
+        bool executedOrDismissed;
     }
     // Proposal ID => Proposal Election Information
     mapping(uint256 => ProposalElection) internal elections_;
@@ -41,8 +40,11 @@ contract VoteStorage {
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
 
-    constructor(address _voteCo) {
-        voteCoImp_ = VotingCoordinator(_voteCo);
+    /**
+     * @param   _voterCo Address of the voter coordinator.
+     */
+    constructor(address _voterCo) {
+        voteCoImp_ = VotingCoordinator(_voterCo);
     }
 
     // -------------------------------------------------------------------------
@@ -121,9 +123,28 @@ contract VoteStorage {
             elections_[_propID].votesAgainst.weight;
     }
 
+    /**
+     * @param   _propID The ID of the proposal election being checked.
+     * @return  bool If the proposal has been executed or dismissed.
+     */
+    function isProposalExecutedOrDismissed(
+        uint256 _propID
+    )  
+        external 
+        view 
+        returns(bool)
+    {
+        return elections_[_propID].executedOrDismissed;
+    }
+
     // -------------------------------------------------------------------------
     // STATE MODIFYING FUNCTIONS
 
+    /**
+     * @param   _propID The ID of the proposal election being checked.
+     * @param   _expiry The expiry for the proposal election.
+     * @notice  This function will fail if a non-approved address calls it.
+     */
     function setElectionExpiry(
         uint256 _propID,
         uint256 _expiry
@@ -134,6 +155,27 @@ contract VoteStorage {
         elections_[_propID].expiry = _expiry;
     }
 
+    /**
+     * @param   _propID The ID of the proposal election being checked.
+     * @notice  This function will fail if a non-approved address calls it.
+     */
+    function setProposalExecutedOrDismissed(
+        uint256 _propID
+    ) 
+        external 
+        onlyApprovedModifiers()
+    {
+        elections_[_propID].executedOrDismissed = true;
+    }
+
+    /**
+     * @param   _propID The ID of the proposal election being checked.
+     * @param   _voterID The NFT ID of the voter.
+     * @param   _voteWeight The weight of the cast vote.
+     * @param   _vote If the vote is for (true) or against (false) the proposal.
+     * @notice  This function will fail if a non-approved address calls it.
+     *          This function will revert if the `_voterID` has already voted.
+     */
     function castVote(
         uint256 _propID,
         uint256 _voterID,
