@@ -1,6 +1,3 @@
-# Project specific
-deployments
-
 # environment variables
 .env
 .env.local
