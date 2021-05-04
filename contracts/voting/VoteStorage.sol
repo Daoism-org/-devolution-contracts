@@ -85,6 +85,23 @@ contract VoteStorage {
 
     /**
      * @param   _propID The ID of the proposal election being checked.
+     * @return  uint256 Expiry time stamp of the proposal
+     */
+    function isProposalInVoteWindow(
+        uint256 _propID
+    ) 
+        external 
+        view 
+        returns(bool) 
+    {
+        if(elections_[_propID].expiry < block.timestamp) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param   _propID The ID of the proposal election being checked.
      * @return  totalVotes Total votes cast (so far) for this election.
      * @return  totalWeight Total weight voted with (so far) for this election.
      */

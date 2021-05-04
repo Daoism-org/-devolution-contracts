@@ -47,6 +47,7 @@ contract VotingBooth {
 
     constructor(address _voteCo) {
         voteCoImp_ = VotingCoordinator(_voteCo);
+        _isCurrent();
     }
 
     // -------------------------------------------------------------------------
@@ -126,13 +127,12 @@ contract VotingBooth {
      * @return  bool If the proposal has been registered and is within voting
      *          period.
      */
-    function isValidProposal(uint256 _propID) internal returns(bool) {
-        _isCurrent();
+    function isValidProposal(uint256 _propID) internal view returns(bool) {
         uint256 currentExpiry = storageImp_.getProposalExpiry(_propID);
 
         if(currentExpiry == 0) {
             return false;
-        } else if(currentExpiry < block.timestamp) {
+        } else if(storageImp_.isProposalInVoteWindow(_propID)) {
             return false;
         }
         return true;
