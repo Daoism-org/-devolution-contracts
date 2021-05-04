@@ -67,6 +67,7 @@ contract VotingBooth {
     ) 
         external 
     {
+        // TODO only proposals directory/executor
         _isCurrent();
         uint256 currentExpiry = storageImp_.getProposalExpiry(_propID);
 
