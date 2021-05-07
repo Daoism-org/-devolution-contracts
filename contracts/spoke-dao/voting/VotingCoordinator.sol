@@ -2,13 +2,16 @@
 pragma solidity 0.7.6;
 
 contract VotingCoordinator {
+    address internal base_; // TODO
     // Storage for valid state modifiers
     mapping(address => bool) internal stateModifiers_;
 
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
 
-    constructor() {}
+    constructor(address _base) {
+        base_ = _base;
+    }
 
     // -------------------------------------------------------------------------
     // NON-MODIFYING FUNCTIONS

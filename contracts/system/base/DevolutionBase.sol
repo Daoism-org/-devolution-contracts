@@ -1,6 +1,6 @@
 pragma solidity 0.7.6;
 
-import "../identity/IExplorer.sol";
+import "../../spoke-dao/reputation/identity/IExplorer.sol";
 
 contract DevolutionBase {
     // Interface for identity solution
@@ -35,6 +35,10 @@ contract DevolutionBase {
 
     function isMember(address _explorer) external view returns(bool) {
         return explorerID_.isExplorer(_explorer);
+    }
+
+    function getIdentityInstance() external view returns(address) {
+
     }
 
     // -------------------------------------------------------------------------
