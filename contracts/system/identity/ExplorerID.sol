@@ -83,6 +83,12 @@ contract ExplorerID is IERC721 {
         return explorersToIDs_[_owner];
     }
 
+    function isExplorer(address _explorer) external view returns(bool) {
+        if(explorersToIDs_[_explorer] == 0) {
+            return true;
+        }
+    }
+
     /**
      * @param   _tokenID ID of the identity token.
      * @return  owner Address of the token owner.
