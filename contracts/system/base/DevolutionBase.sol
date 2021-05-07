@@ -53,7 +53,7 @@ contract DevolutionBase {
         external 
         onlyExecutor() 
     {
-        explorerID_ = IExplorer(_explorer);
+        explorerID_ = IExplorer(_explorerIdentityContract);
     }
 
     /**
