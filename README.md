@@ -35,8 +35,22 @@ yarn build
 
 In order to test the smart contracts, we need to make a local Optimism instance to run the tests on. Before following the instructions below, please ensure you have [docker installed and set up](https://docs.docker.com/engine/install/). It is recommended to use two terminals for the following in order to keep things readable. 
 
+While techncially you should be able to run all these commands in one go, there tends to be timing issues and it is better to run them one by one.
+
+// TODO make script with correct sequential execution
+
+"todo-tree.highlights.defaultHighlight": {
+        "icon": "alert",
+        "type": "text",
+        "foreground": "white",
+        "background": "orange",
+        "opacity": 25,
+        "iconColour": "orange"
+    },
+
 In your second terminal, run the following:
 ```sh
+git clone git@github.com:ethereum-optimism/optimism.git
 cd optimism
 yarn install
 yarn build

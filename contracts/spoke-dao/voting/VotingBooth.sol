@@ -111,7 +111,7 @@ contract VotingBooth {
         );
         _isCurrent();
 
-        // TODO Should revert if voterID does not exist
+        // QS Should revert if voterID does not exist
         uint256 voteWeight = 100; //getVoterWeight(_voterID);
 
         storageImp_.castVote(_propID, _voterID, voteWeight, _vote);

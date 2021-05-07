@@ -16,8 +16,8 @@ contract ReputationToken is IERC20 {
     uint8 private decimals_;
 
     constructor(address _repCoord) {
-        // TODO Get address of reputation distributor 
-        // TODO Get address of identity token to turn address into token ID
+        // FIXME Get address of reputation distributor 
+        // FIXME Get address of identity token to turn address into token ID
     }
 
     // -------------------------------------------------------------------------
@@ -43,7 +43,7 @@ contract ReputationToken is IERC20 {
     }
 
     function balanceOf(address _account) external view override returns(uint256) {
-        uint256 ownedTokenID = 1; // TODO needs to get from ID instance
+        uint256 ownedTokenID = 1; // FIXME needs to get from ID instance
         return balances_[ownedTokenID];
     }
 
@@ -51,7 +51,7 @@ contract ReputationToken is IERC20 {
     // STATE MODIFYING FUNCTIONS
 
     function mint(address _to, uint256 _amount) external {
-        // TODO require only the reputation distributor can mint
+        // FUTURE require only the reputation distributor can mint
 
     }
 

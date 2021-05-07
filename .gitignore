@@ -4,6 +4,7 @@
 
 # Packages
 node_modules/
+optimism/
 
 # Hardhat build outputs
 artifacts/

@@ -7,8 +7,8 @@ import "./VoteStorage.sol";
 contract GeneralCensus {
     VotingCoordinator internal voteCoImp_; 
     VoteStorage internal storageImp_;
-    // TODO interface
-    address internal voterCo_;
+    // 
+    address internal voterCo_; // FIXME interface
     // Consensus parameters
     // The minimum number of votes cast for a vote to reach consensus
     uint256 public minimumVotes;
@@ -31,7 +31,7 @@ contract GeneralCensus {
         uint256 _minWeight
     ) {
         voteCoImp_ = VotingCoordinator(_voterCo);
-        this.isCurrent(); // TODO this might fail on deploy
+        this.isCurrent(); // TEST this might fail on deploy
         minimumVotes = _minVotes;
         minimumWeight = _minWeight;
     }
@@ -125,7 +125,7 @@ contract GeneralCensus {
         
         if(consensusReached && isPassed) {
             // Proposal reached consensus and passed
-            // TODO call options registry to execute
+            // FIXME call options registry to execute
         } else {
             // Proposal did not reach consensus or did not pass
         }

@@ -15,8 +15,8 @@ contract ExplorerID is IERC721 {
     string internal symbol_;
     // Counter of all minted tokens
     uint256 internal totalSupply_;
-    // TODO make interface
-    address internal base_;
+    // 
+    address internal base_; // FIXME remove into base sub module
     // Explorer address => Token ID
     mapping(address => uint256) internal explorersToIDs_;
     // Token ID => Explorer address
