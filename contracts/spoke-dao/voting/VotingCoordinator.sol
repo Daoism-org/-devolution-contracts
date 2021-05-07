@@ -35,4 +35,9 @@ contract VotingCoordinator {
         return stateModifiers_[_checked];
         // TODO should also have a check for executor address?
     }
+
+    // TODO need to linking through spoke to other needed functionality
+    // Coord needs to act as the middle man with interactions between these
+    // external contracts and its child contracts
+    
 }

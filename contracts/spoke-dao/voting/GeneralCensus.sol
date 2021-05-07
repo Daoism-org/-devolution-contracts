@@ -96,6 +96,8 @@ contract GeneralCensus {
     // -------------------------------------------------------------------------
     // STATE MODIFYING FUNCTIONS
 
+    // TODO upgradeability for consensus mins
+
     /**
      * @param   _propID The ID of the proposal election being executed.
      * @notice  This function will revert if the vote window for a proposal 
