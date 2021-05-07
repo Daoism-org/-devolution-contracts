@@ -35,20 +35,16 @@ interface IERC721 {
 
     function ownerOf(uint256 _tokenId) external view returns (address owner);
 
-    // -------------------------------------------------------------------------
-    // STATE MODIFYING FUNCTIONS
-
-    function safeTransferFrom(address from, address _to, uint256 _tokenId) external;
-
-    function transferFrom(address from, address _to, uint256 _tokenId) external;
-
-    function approve(address _to, uint256 _tokenId) external;
+    function isApprovedForAll(address _owner, address _operator) external view returns (bool);
 
     function getApproved(uint256 _tokenId) external view returns (address _operator);
 
+    // -------------------------------------------------------------------------
+    // STATE MODIFYING FUNCTIONS
+
+    function approve(address _to, uint256 _tokenId) external;
+
+    function transferFrom(address from, address _to, uint256 _tokenId) external;
+
     function setApprovalForAll(address _operator, bool _approved) external;
-
-    function isApprovedForAll(address _owner, address _operator) external view returns (bool);
-
-    function safeTransferFrom(address from, address _to, uint256 _tokenId, bytes calldata data) external;
 }

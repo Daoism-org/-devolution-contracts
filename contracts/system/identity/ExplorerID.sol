@@ -9,6 +9,14 @@ import "./IERC721.sol";
  *          information. 
  */
 contract ExplorerID is IERC721 {
+    // Token name
+    string internal name_;
+    // Token symbol
+    string internal symbol_;
+    // Counter of all minted tokens
+    uint256 internal totalSupply_;
+    // TODO make interface
+    address internal base_;
     // Explorer address => Token ID
     mapping(address => uint256) internal explorersToIDs_;
     // Token ID => Explorer address
@@ -17,16 +25,27 @@ contract ExplorerID is IERC721 {
     mapping(address => mapping(address => bool)) internal operatorApprovals_;
     // Token ID => Spender address
     mapping(uint256 => address) internal approvedSpenders_;
-    // Token name
-    string internal name_;
-    // Token symbol
-    string internal symbol_;
-    // Counter of all minted tokens
-    uint256 internal totalSupply_;
 
-    constructor() {
+
+    // -------------------------------------------------------------------------
+    // MODIFIERS
+
+    modifier onlyBase() {
+        require(
+            msg.sender == base_,
+            "Only Base can access"
+        );
+        _;
+    }
+
+
+    // -------------------------------------------------------------------------
+    // CONSTRUCTOR
+
+    constructor(address _base) {
         name_ = "Explorer ID";
         symbol_ = "eID";
+        base_ = _base;
     }
 
     // -------------------------------------------------------------------------
@@ -44,6 +63,13 @@ contract ExplorerID is IERC721 {
      */
     function symbol() external view returns(string memory) {
         return symbol_;
+    }
+
+    /**
+     * @return  The total number of tokens that have been minted.
+     */
+    function totalSupply() external view returns (uint256) {
+        return totalSupply_;
     }
 
     /**
@@ -70,13 +96,6 @@ contract ExplorerID is IERC721 {
         returns(address owner) 
     {
         return IDsToExplorers_[_tokenID];
-    }
-
-    /**
-     * @return  The total number of tokens that have been minted.
-     */
-    function totalSupply() external view returns (uint256) {
-        return totalSupply_;
     }
 
     /**
@@ -115,6 +134,26 @@ contract ExplorerID is IERC721 {
 
     // -------------------------------------------------------------------------
     // STATE MODIFYING FUNCTIONS
+
+    /**
+     * @param   _to The address being minted to.
+     * @return  The token ID of the minted token.  
+     */
+    function mint(address _to) external onlyBase() returns(uint256) {
+        totalSupply_ += 1;
+        uint256 tokenID = totalSupply_;
+
+        IDsToExplorers_[tokenID] = _to;
+        explorersToIDs_[_to] = tokenID;
+
+        emit Transfer(
+            address(0), 
+            _to, 
+            tokenID
+        );
+
+        return tokenID;
+    }
 
     /**
      * @param   _to The address being approved.
@@ -162,43 +201,31 @@ contract ExplorerID is IERC721 {
     /**
      * 
      */
-    function transferFrom(address _from, address _to, uint256 _tokenId) external override {
-        address owner = this.ownerOf(_tokenId);
+    function transferFrom(
+        address _from, 
+        address _to, 
+        uint256 _tokenID
+    ) 
+        external 
+        override 
+    {
+        address owner = this.ownerOf(_tokenID);
 
         require(
             owner != _to,
             "Can't approving current owner"
         );
+        require(_to != address(0), "Can't transfer to zero address");
         require(
             msg.sender == owner || this.isApprovedForAll(owner, msg.sender),
             "Sender is not owner or approved"
         );
-        require(_to != address(0), "Can't transfer to zero address");
 
-
-    }
-
-    function safeTransferFrom(
-        address from, 
-        address to, 
-        uint256 _tokenId
-    ) 
-        external 
-        override 
-    {
-
-    }
-
-    function safeTransferFrom(
-        address from, 
-        address to, 
-        uint256 _tokenId, 
-        bytes calldata data
-    ) 
-        external 
-        override
-    {
-
+        _transfer(
+            _from, 
+            _to, 
+            _tokenID
+        );
     }
 
     // -------------------------------------------------------------------------
