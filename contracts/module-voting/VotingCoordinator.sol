@@ -18,6 +18,16 @@ contract VotingCoordinator is BaseModule {
     ) {
     }
 
+    function init(
+        bytes32[] memory _subModulesIdentifiers,
+        address[] memory _subModulesInstances
+    ) external override {
+        _init(
+            _subModulesIdentifiers,
+            _subModulesInstances
+        );
+    }
+
     // -------------------------------------------------------------------------
     // NON-MODIFYING FUNCTIONS
 

@@ -16,4 +16,7 @@ library BaseDaoLibrary {
     bytes32 public constant OptionsExecutor = "OptionsExecutor";
     bytes32 public constant OptionsRegistry = 
         "OptionsRegistry";
+    
+    // Reputation Module
+    bytes32 public constant ReputationCoordinator = "ReputationCoordinator";
 }

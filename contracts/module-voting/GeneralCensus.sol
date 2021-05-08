@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
+import "../base-implementations/modules/BaseSubModule.sol";
 import "./VotingCoordinator.sol";
 import "./VoteStorage.sol";
 
-contract GeneralCensus {
+contract GeneralCensus is BaseSubModule {
+    // Constant of this sub modules identifier
+    bytes32 internal constant SubModuleIdentifier_ = "GeneralCensus";
     VotingCoordinator internal voteCoImp_; 
     VoteStorage internal storageImp_;
     // 
-    address internal voterCo_; // FIXME interface
     // Consensus parameters
     // The minimum number of votes cast for a vote to reach consensus
     uint256 public minimumVotes;
@@ -19,21 +21,27 @@ contract GeneralCensus {
     // CONSTRUCTOR
 
     /**
-     * @param   _voterCo Address of the voter coordinator.
+     * @param   _baseModule Address of the voter coordinator.
      * @param   _minVotes The minimum number of votes needed for a proposal
      *          election to pass. 
      * @param   _minWeight The minimum needed weight for a proposal election to
      *          pass. 
      */
     constructor(
-        address _voterCo,
+        address _baseModule,
         uint256 _minVotes,
         uint256 _minWeight
-    ) {
-        voteCoImp_ = VotingCoordinator(_voterCo);
+    ) BaseSubModule(SubModuleIdentifier_, _baseModule)
+    {
+        voteCoImp_ = VotingCoordinator(_baseModule);
         this.isCurrent(); // TEST this might fail on deploy
         minimumVotes = _minVotes;
         minimumWeight = _minWeight;
+    }
+
+    function init() external override {
+        // TODO needs to get the address of the executor from the base
+        // module which is turn getting it from the spoke dao.
     }
 
     // -------------------------------------------------------------------------
@@ -96,7 +104,9 @@ contract GeneralCensus {
     // -------------------------------------------------------------------------
     // STATE MODIFYING FUNCTIONS
 
-    // TODO upgradeability for consensus mins
+    function registerOptionsOnModule() external override {
+        // TODO upgradeability for consensus mins
+    }
 
     /**
      * @param   _propID The ID of the proposal election being executed.

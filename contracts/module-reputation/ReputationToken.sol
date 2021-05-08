@@ -2,8 +2,11 @@
 pragma solidity 0.7.6;
 
 import "./IERC20.sol";
+import "../base-implementations/modules/BaseSubModule.sol";
 
-contract ReputationToken is IERC20 {
+contract ReputationToken is IERC20, BaseSubModule {
+    // Constant of this sub modules identifier
+    bytes32 internal constant SubModuleIdentifier_ = "ReputationToken";
     // Explorer ID Token => Balances
     mapping(uint256 => uint256) internal balances_;
     // Owner => Spender => Approved Balances
@@ -15,7 +18,15 @@ contract ReputationToken is IERC20 {
     string private symbol_;
     uint8 private decimals_;
 
-    constructor(address _repCoord) {
+    constructor(address _baseModule) 
+        BaseSubModule(SubModuleIdentifier_, _baseModule)
+    {
+        baseModule_ = IBaseModule(_baseModule);
+    }
+
+    function init() external override {
+        // TODO needs to get the address of the executor from the base
+        // module which is turn getting it from the spoke dao.
         // FIXME Get address of reputation distributor 
         // FIXME Get address of identity token to turn address into token ID
     }
@@ -50,13 +61,16 @@ contract ReputationToken is IERC20 {
     // -------------------------------------------------------------------------
     // STATE MODIFYING FUNCTIONS
 
-    function mint(address _to, uint256 _amount) external {
-        // FUTURE require only the reputation distributor can mint
+    function registerOptionsOnModule() external override {
 
     }
 
-    function approve(address spender, uint256 amount) external override returns(bool) {
+    function mint(address _to, uint256 _amount) external {
+        // TODO require only the reputation distributor can mint
+    }
 
+    function approve(address spender, uint256 amount) external override returns(bool) {
+        // TODO maybe remove? Maybe use as indicator of proxy voting?
     }
 
     function transfer(

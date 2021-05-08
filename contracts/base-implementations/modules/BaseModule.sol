@@ -3,8 +3,9 @@ pragma solidity 0.7.6;
 
 import "../spoke/BaseDaoLibrary.sol";
 import "../spoke/BaseDao.sol";
+import "./IBaseModule.sol";
 
-contract BaseModule {
+abstract contract BaseModule {
     // Identifier for the module
     bytes32 public immutable ModuleIdentifier;
     // Storage of the deployer for once off access
@@ -63,39 +64,17 @@ contract BaseModule {
     function init(
         bytes32[] memory _subModulesIdentifiers,
         address[] memory _subModulesInstances
-    ) external {
-        require(
-            !alive_,
-            "Base has been initialised"
-        );
-        require(
-            msg.sender == deployer_,
-            "Only deployer can access"
-        );
-        require(
-            _subModulesIdentifiers.length ==
-            _subModulesIdentifiers.length,
-            "Identifier and address mismatch"
-        );
-        // Removing the deployer rights
-        deployer_ = address(0);
-        // Setting up the needed addresses 
-        for (uint256 i = 0; i < _subModulesIdentifiers.length; i++) {
-            _registerSubModule(
-                _subModulesIdentifiers[i],
-                _subModulesInstances[i],
-                true
-            );
-        }
-        // Marking the module as initialised
-        alive_ = true;
-    }
+    ) external virtual;
 
     // -------------------------------------------------------------------------
     // NON-MODIFYING FUNCTIONS
 
     function getModuleIdentifier() external view returns(bytes32) {
         return ModuleIdentifier;
+    }
+
+    function getBaseDao() external view returns(address) {
+        return address(baseDaoInstance_);
     }
 
     function getSubModuleImplementationAndUse(
@@ -148,6 +127,37 @@ contract BaseModule {
     // -------------------------------------------------------------------------
     // INTERNAL FUNCTIONS
 
+    function _init(
+        bytes32[] memory _subModulesIdentifiers,
+        address[] memory _subModulesInstances
+    ) internal {
+        require(
+            !alive_,
+            "Base has been initialised"
+        );
+        require(
+            msg.sender == deployer_,
+            "Only deployer can access"
+        );
+        require(
+            _subModulesIdentifiers.length ==
+            _subModulesIdentifiers.length,
+            "Identifier and address mismatch"
+        );
+        // Removing the deployer rights
+        deployer_ = address(0);
+        // Setting up the needed addresses 
+        for (uint256 i = 0; i < _subModulesIdentifiers.length; i++) {
+            _registerSubModule(
+                _subModulesIdentifiers[i],
+                _subModulesInstances[i],
+                true
+            );
+        }
+        // Marking the module as initialised
+        alive_ = true;
+    }
+
     /**
      * @param   _identifier of the implementation.
      * @param   _implementation address for the identifier.
@@ -160,6 +170,11 @@ contract BaseModule {
     ) 
         private 
     {
+        require(
+            IBaseModule(_implementation).getModuleIdentifier() == _identifier,
+            "Implementation ID mismatch"
+        );
+
         address currentImplementation = subModulesRegistry_[_identifier].implementation;
 
         subModulesRegistry_[_identifier] = SubModule({
