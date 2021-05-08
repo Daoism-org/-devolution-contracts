@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
+import "../base-implementations/modules/BaseSubModule.sol";
 import "./VotingCoordinator.sol";
 import "./VoteStorage.sol";
 
-contract VotingBooth {
+contract VotingBooth is BaseSubModule {
+    // Constant of this sub modules identifier
+    bytes32 internal constant SubModuleIdentifier_ = "VotingBooth";
+
     VotingCoordinator internal voteCoImp_; 
     VoteStorage internal storageImp_;
     // Needed information to count ballots for an election
@@ -45,13 +49,25 @@ contract VotingBooth {
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
 
-    constructor(address _voteCo) {
-        voteCoImp_ = VotingCoordinator(_voteCo);
-        _isCurrent();
+    constructor(address _baseModule) 
+        BaseSubModule(SubModuleIdentifier_, _baseModule)
+    {
+        voteCoImp_ = VotingCoordinator(_baseModule);
+        _isCurrent(); // FIXME change to push over pull
+    }
+
+    function init() external override {
+        // TODO needs to get the address of the executor from the base
+        // module which is turn getting it from the spoke dao.
     }
 
     // -------------------------------------------------------------------------
     // STATE MODIFYING FUNCTIONS
+
+
+    function registerOptionsOnModule() external override {
+
+    }
 
     /**
      * @param   _propID The ID of the proposal election being registered.

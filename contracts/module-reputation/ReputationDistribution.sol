@@ -13,7 +13,7 @@ contract ReputationDistribution is BaseSubModule {
     constructor(address _baseModule) 
         BaseSubModule(SubModuleIdentifier_, _baseModule)
     {
-        baseModule_ = IBaseModule(_baseModule);
+        
     }
 
     function init() external override {

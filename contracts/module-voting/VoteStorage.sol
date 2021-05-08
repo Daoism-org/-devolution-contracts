@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
+import "../base-implementations/modules/BaseSubModule.sol";
 import "./VotingCoordinator.sol";
 
-contract VoteStorage {
+contract VoteStorage is BaseSubModule {
+    // Constant of this sub modules identifier
+    bytes32 internal constant SubModuleIdentifier_ = "VoteStorage";
+
     VotingCoordinator internal voteCoImp_; 
     // Needed information to count ballots for an election
     struct BallotCount {
@@ -41,11 +45,19 @@ contract VoteStorage {
     // CONSTRUCTOR
 
     /**
-     * @param   _voterCo Address of the voter coordinator.
+     * @param   _baseModule Address of the voter coordinator.
      */
-    constructor(address _voterCo) {
-        voteCoImp_ = VotingCoordinator(_voterCo);
+    constructor(address _baseModule) 
+        BaseSubModule(SubModuleIdentifier_, _baseModule)
+    {
+        voteCoImp_ = VotingCoordinator(_baseModule);
     }
+
+    function init() external override {
+        // TODO needs to get the address of the executor from the base
+        // module which is turn getting it from the spoke dao.
+    }
+
 
     // -------------------------------------------------------------------------
     // NON-MODIFYING FUNCTIONS
@@ -139,6 +151,10 @@ contract VoteStorage {
 
     // -------------------------------------------------------------------------
     // STATE MODIFYING FUNCTIONS
+
+    function registerOptionsOnModule() external override {
+
+    }
 
     /**
      * @param   _propID The ID of the proposal election being checked.
