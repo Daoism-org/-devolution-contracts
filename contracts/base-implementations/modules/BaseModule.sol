@@ -62,6 +62,22 @@ abstract contract BaseModule {
         _;
     }
 
+    modifier onlySpoke() {
+        require(
+            msg.sender == address(baseDaoInstance_),
+            "Only Base DAO access"
+        );
+        _;
+    }
+
+    modifier onlyModule(bytes32 _identifier) {
+        require(
+            msg.sender == this.getModuleFromBase(_identifier),
+            "Only identified module"
+        );
+        _;
+    }
+
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
 
@@ -84,6 +100,12 @@ abstract contract BaseModule {
 
     function getBaseDao() external view returns(address) {
         return address(baseDaoInstance_);
+    }
+
+    function getModuleFromBase(
+        bytes32 _identifier
+    ) external view returns(address) {
+        return baseDaoInstance_.getModuleAddress(_identifier);
     }
 
     function getSubModuleImplementationAndUse(
@@ -139,8 +161,6 @@ abstract contract BaseModule {
 
     // -------------------------------------------------------------------------
     // INTERNAL FUNCTIONS
-
-    // QS make internal functions to get any identifier implementation from spoke
 
     function _init(
         bytes32[] memory _subModulesIdentifiers,

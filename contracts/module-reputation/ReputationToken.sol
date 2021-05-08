@@ -72,8 +72,13 @@ contract ReputationToken is IERC20, BaseSubModule {
 
     }
 
-    function mint(address _to, uint256 _amount) external {
-        // QS require only the reputation distributor can mint
+    function mint(
+        address _to, 
+        uint256 _amount
+    ) 
+        external 
+        onlyModule(BaseDaoLibrary.ReputationDistribution) 
+    {
         uint256 ownedTokenID = identityToken_.getOwnerToken(_to);
 
         require(

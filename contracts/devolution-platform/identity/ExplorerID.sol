@@ -9,15 +9,17 @@ import "../../base-implementations/modules/BaseModule.sol";
  *          the expected functionally. Please see function documentation for more
  *          information. 
  */
-contract ExplorerID is IERC721, BaseModule {
+contract ExplorerID is IERC721 {
+    // Identifier for the module
+    bytes32 public immutable ModuleIdentifier;
+    // NOTE
+    address platformBase_;
     // Token name
     string internal name_;
     // Token symbol
     string internal symbol_;
     // Counter of all minted tokens
     uint256 internal totalSupply_;
-    // 
-    address internal base_; // FIXME remove into base sub module
     // Explorer address => Token ID
     mapping(address => uint256) internal explorersToIDs_;
     // Token ID => Explorer address
@@ -33,7 +35,7 @@ contract ExplorerID is IERC721, BaseModule {
 
     modifier onlyBase() {
         require(
-            msg.sender == base_,
+            msg.sender == platformBase_,
             "Only Base can access"
         );
         _;
@@ -44,21 +46,11 @@ contract ExplorerID is IERC721, BaseModule {
     // CONSTRUCTOR
 
     constructor(bytes32 _moduleIdentifier, address _base) 
-        BaseModule(BaseDaoLibrary.DaoIdentifier, _base)
     {
         name_ = "Explorer ID";
         symbol_ = "eID";
-        base_ = _base;
-    }
-
-    function init(
-        bytes32[] memory _subModulesIdentifiers,
-        address[] memory _subModulesInstances
-    ) external override {
-        _init(
-            _subModulesIdentifiers,
-            _subModulesInstances
-        );
+        platformBase_ = _base;
+        ModuleIdentifier = BaseDaoLibrary.DaoIdentifier;
     }
 
     // -------------------------------------------------------------------------

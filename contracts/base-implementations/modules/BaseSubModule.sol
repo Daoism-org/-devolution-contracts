@@ -26,10 +26,9 @@ abstract contract BaseSubModule {
         _;
     }
 
-    // QS after univerisal internal getters, make modifers for all the 
     modifier onlyModule(bytes32 _identifier) {
         require(
-            true,
+            msg.sender == baseModule_.getModuleFromBase(_identifier),
             "Only identified module"
         );
         _;

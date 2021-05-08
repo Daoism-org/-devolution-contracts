@@ -217,7 +217,16 @@ abstract contract BaseDao {
         _registerSubModules(module, module.getAllSubModules());
     }
 
-    function _registerSubModules(IBaseModule _module, bytes32[] memory _identifiers) internal {
+    function _registerSubModules(
+        IBaseModule _module, 
+        bytes32[] memory _identifiers
+    ) 
+        internal 
+        returns(bool) 
+    {
+        if(_identifiers.length == 0) {
+            return false;
+        }
         for (uint256 i = 0; i < _identifiers.length; i++) {
             // Getting the implementation address and use status
             (
@@ -240,6 +249,7 @@ abstract contract BaseDao {
                 isInUse
             );
         }
+        return true;
     }
 
     function _registerOptions() internal {

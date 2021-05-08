@@ -35,5 +35,14 @@ contract ReputationDistribution is BaseSubModule {
     // -------------------------------------------------------------------------
     // ONLY EXECUTOR STATE MODIFYING FUNCTIONS
 
-    // function mintTokensTo() external onlyExecutor()
+    function mintReputation(
+        address _to,
+        bytes32 _for,
+        uint256 _amount
+    ) 
+        external 
+        onlyModule(BaseDaoLibrary.OptionsExecutor) 
+    {
+        
+    }
 }
