@@ -47,14 +47,17 @@ contract VotingCoordinator is BaseModule {
         view 
         returns(bool) 
     {
-        return subModulesRegistry_[
-            subModuleLookup_[_checked]
-        ].inUse;
-        // TODO should also have a check for executor address?
+        // If the checked address is an approved state modifier or is options
+        // executor.
+        if(
+            subModulesRegistry_[
+                subModuleLookup_[_checked]
+            ].inUse || 
+            _checked == this.getModuleFromBase(
+                BaseDaoLibrary.OptionsExecutor
+            )
+        ) {
+            return true;
+        }
     }
-
-    // TODO need to linking through spoke to other needed functionality
-    // Coord needs to act as the middle man with interactions between these
-    // external contracts and its child contracts
-    
 }

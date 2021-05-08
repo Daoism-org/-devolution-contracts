@@ -138,7 +138,7 @@ contract GeneralCensus is BaseSubModule {
         
         if(consensusReached && isPassed) {
             // Proposal reached consensus and passed
-            // FIXME call options registry to execute
+            // FIXME call options executor to execute
         } else {
             // Proposal did not reach consensus or did not pass
         }
@@ -198,7 +198,7 @@ contract GeneralCensus is BaseSubModule {
                 BaseDaoLibrary.VoteStorage
             )
         ).getProposalElectionTotals(_propID);
-        
+
         if(
             totalVotes >= minimumVotes &&
             totalWeight >= minimumWeight

@@ -12,8 +12,6 @@ import "../base-implementations/modules/BaseSubModule.sol";
 contract ReputationToken is IERC20, BaseSubModule {
     // Constant of this sub modules identifier
     bytes32 internal constant SubModuleIdentifier_ = "ReputationToken";
-    //
-    IExplorer internal identityToken_;
     // Explorer ID Token => Balances
     mapping(uint256 => uint256) internal balances_;
     // Owner => Spender => Approved Balances
@@ -32,9 +30,7 @@ contract ReputationToken is IERC20, BaseSubModule {
     }
 
     function init() external override {
-        // module which is turn getting it from the spoke dao.
-        // FIXME Get address of reputation distributor 
-        // QS get ID from owned tokens
+
     }
 
     // -------------------------------------------------------------------------
