@@ -23,8 +23,4 @@ contract ReputationCoordinator is BaseModule {
             _subModulesInstances
         );
     }
-
-    function getVoterWeight(uint256 _voterID) external view returns(uint256) {
-        
-    }
 }

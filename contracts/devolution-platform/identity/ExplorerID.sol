@@ -1,6 +1,7 @@
 pragma solidity 0.7.6;
 
 import "./IERC721.sol";
+import "../../base-implementations/modules/BaseModule.sol";
 
 /**
  * @author  Veronica Coutts @Nicca42 (Github) @vonnie610 (twitter).
@@ -8,7 +9,7 @@ import "./IERC721.sol";
  *          the expected functionally. Please see function documentation for more
  *          information. 
  */
-contract ExplorerID is IERC721 {
+contract ExplorerID is IERC721, BaseModule {
     // Token name
     string internal name_;
     // Token symbol
@@ -42,10 +43,22 @@ contract ExplorerID is IERC721 {
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
 
-    constructor(address _base) {
+    constructor(bytes32 _moduleIdentifier, address _base) 
+        BaseModule(BaseDaoLibrary.DaoIdentifier, _base)
+    {
         name_ = "Explorer ID";
         symbol_ = "eID";
         base_ = _base;
+    }
+
+    function init(
+        bytes32[] memory _subModulesIdentifiers,
+        address[] memory _subModulesInstances
+    ) external override {
+        _init(
+            _subModulesIdentifiers,
+            _subModulesInstances
+        );
     }
 
     // -------------------------------------------------------------------------
