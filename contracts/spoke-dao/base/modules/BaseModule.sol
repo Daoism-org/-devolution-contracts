@@ -3,10 +3,11 @@ pragma solidity 0.7.6;
 
 
 abstract contract BaseModule {
-    address internal base_; // TODO
+    bytes32 public immutable ModuleIdentifier;
 
-    constructor(address _base) {
-        base_ = _base;
+    constructor(bytes32 _identifier, address _spoke) {
+        // base_ = _base;
+        ModuleIdentifier = _identifier;
     }
 
     function registerSubModule() external virtual;

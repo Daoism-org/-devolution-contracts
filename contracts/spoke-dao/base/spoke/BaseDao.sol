@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-import "./IDevBase.sol";
 import "./BaseDaoLibrary.sol";
 
 abstract contract BaseDao {
     // Storage for the devolution base DAO
-    IDevBase internal devolutionBase_; 
+    address internal devolutionBase_; // FUTURE fif needed make interface
     // Storage of the deployer for once off access
     address internal deployer_;
     // If this Base DAO has been initialised
@@ -54,7 +53,7 @@ abstract contract BaseDao {
     // CONSTRUCTOR
 
     constructor(address _devolutionBase) {
-        devolutionBase_ = IDevBase(_devolutionBase);
+        devolutionBase_ = _devolutionBase;
 
         _registerModule(
             BaseDaoLibrary.DevolutionDao,
