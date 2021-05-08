@@ -1,6 +1,7 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-import "../../spoke-dao/reputation/identity/IExplorer.sol";
+import "../identity/IExplorer.sol";
 
 contract DevolutionBase {
     // Interface for identity solution
@@ -38,11 +39,11 @@ contract DevolutionBase {
     }
 
     function getBaseIdentityInstance() external view returns(address) {
-        return explorerID_;
+        return address(explorerID_);
     }
 
     function getBaseExecutorInstance() external view returns(address) {
-        return explorerID_;
+        return address(explorerID_);
     }
 
     // -------------------------------------------------------------------------

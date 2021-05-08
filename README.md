@@ -39,15 +39,6 @@ While techncially you should be able to run all these commands in one go, there 
 
 // TODO make script with correct sequential execution
 
-"todo-tree.highlights.defaultHighlight": {
-        "icon": "alert",
-        "type": "text",
-        "foreground": "white",
-        "background": "orange",
-        "opacity": 25,
-        "iconColour": "orange"
-    },
-
 In your second terminal, run the following:
 ```sh
 git clone git@github.com:ethereum-optimism/optimism.git
