@@ -37,8 +37,12 @@ contract DevolutionBase {
         return explorerID_.isExplorer(_explorer);
     }
 
-    function getIdentityInstance() external view returns(address) {
+    function getBaseIdentityInstance() external view returns(address) {
+        return explorerID_;
+    }
 
+    function getBaseExecutorInstance() external view returns(address) {
+        return explorerID_;
     }
 
     // -------------------------------------------------------------------------
