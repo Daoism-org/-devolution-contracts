@@ -2,11 +2,18 @@
 pragma solidity 0.7.6;
 
 import "./IERC20.sol";
+import "../devolution-platform/identity/IExplorer.sol";
 import "../base-implementations/modules/BaseSubModule.sol";
 
+/**
+ * @author
+ * @notice
+ */
 contract ReputationToken is IERC20, BaseSubModule {
     // Constant of this sub modules identifier
     bytes32 internal constant SubModuleIdentifier_ = "ReputationToken";
+    //
+    IExplorer internal identityToken_;
     // Explorer ID Token => Balances
     mapping(uint256 => uint256) internal balances_;
     // Owner => Spender => Approved Balances
@@ -25,9 +32,9 @@ contract ReputationToken is IERC20, BaseSubModule {
     }
 
     function init() external override {
-        // TODO needs to get the address of the executor from the base
         // module which is turn getting it from the spoke dao.
         // FIXME Get address of reputation distributor 
+        // QS get ID from owned tokens
         // FIXME Get address of identity token to turn address into token ID
     }
 
@@ -54,7 +61,7 @@ contract ReputationToken is IERC20, BaseSubModule {
     }
 
     function balanceOf(address _account) external view override returns(uint256) {
-        uint256 ownedTokenID = 1; // FIXME needs to get from ID instance
+        uint256 ownedTokenID = identityToken_.getOwnerToken(_account);
         return balances_[ownedTokenID];
     }
 
@@ -66,7 +73,15 @@ contract ReputationToken is IERC20, BaseSubModule {
     }
 
     function mint(address _to, uint256 _amount) external {
-        // TODO require only the reputation distributor can mint
+        // QS require only the reputation distributor can mint
+        uint256 ownedTokenID = identityToken_.getOwnerToken(_to);
+
+        require(
+            ownedTokenID != 0,
+            "`To doesn't own identity token"
+        );
+        
+        balances_[ownedTokenID] += _amount;
     }
 
     function approve(address spender, uint256 amount) external override returns(bool) {

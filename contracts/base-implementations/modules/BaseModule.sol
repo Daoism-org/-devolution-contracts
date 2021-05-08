@@ -5,12 +5,17 @@ import "../spoke/BaseDaoLibrary.sol";
 import "../spoke/BaseDao.sol";
 import "./IBaseModule.sol";
 
+/**
+ * @author
+ * @notice  This contract needs to be inherited into any module that needs high
+ *          level access to the spoke DAO. 
+ */
 abstract contract BaseModule {
     // Identifier for the module
     bytes32 public immutable ModuleIdentifier;
     // Storage of the deployer for once off access
     address internal deployer_;
-    // 
+    // Instance of spoke DAO
     BaseDao internal baseDaoInstance_;
     // If this Base DAO has been initialised
     bool internal alive_;
@@ -20,7 +25,9 @@ abstract contract BaseModule {
         bool inUse;
     }
     // identifier of the module to its information
-    mapping(bytes32 => SubModule) internal subModulesRegistry_;  
+    mapping(bytes32 => SubModule) internal subModulesRegistry_;
+    // Reverse look up
+    mapping(address => bytes32) internal subModuleLookup_;
     
     // -------------------------------------------------------------------------
     // EVENTS
@@ -121,11 +128,13 @@ abstract contract BaseModule {
     }
 
     // function registerOptions() external virtual;
-        // TODO allows a high level module to add the options of sub 
+        // QS allows a high level module to add the options of sub 
         // modules 
 
     // -------------------------------------------------------------------------
     // INTERNAL FUNCTIONS
+
+    // QS make internal functions to get any identifier implementation from spoke
 
     function _init(
         bytes32[] memory _subModulesIdentifiers,
@@ -170,17 +179,28 @@ abstract contract BaseModule {
     ) 
         private 
     {
+        // Ensure that the submodule and module have the same understanding of
+        // implementation. 
         require(
-            IBaseModule(_implementation).getModuleIdentifier() == _identifier,
+            IBaseModule(
+                _implementation
+            ).getModuleIdentifier() == _identifier,
             "Implementation ID mismatch"
         );
-
-        address currentImplementation = subModulesRegistry_[_identifier].implementation;
-
+        // Getting the current implementation address
+        address currentImplementation = subModulesRegistry_[
+            _identifier
+        ].implementation;
+        // Clearing the reverse look up mapping for replaced submodule.
+        subModuleLookup_[currentImplementation] = "";
+        // Storing the new submodule in the lookup
         subModulesRegistry_[_identifier] = SubModule({
             implementation: _implementation,
             inUse: _use
         });
+        // Storing the new submodule in the reverse lookup
+        subModuleLookup_[_implementation] = _identifier;
+        
         emit SubModuleRegistryUpdated(
             _identifier, 
             currentImplementation, 

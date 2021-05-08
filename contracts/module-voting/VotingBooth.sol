@@ -1,16 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-import "../base-implementations/modules/BaseSubModule.sol";
-import "./VotingCoordinator.sol";
 import "./VoteStorage.sol";
+import "./VotingCoordinator.sol";
+import "../module-reputation/IVoteWeight.sol";
+import "../base-implementations/modules/BaseSubModule.sol";
 
 contract VotingBooth is BaseSubModule {
     // Constant of this sub modules identifier
     bytes32 internal constant SubModuleIdentifier_ = "VotingBooth";
-
+    // NOTES
     VotingCoordinator internal voteCoImp_; 
+    // NOTES
     VoteStorage internal storageImp_;
+    // NOTES
+    // QS get all of these instances into the contract through spoke DAO
+    IVoteWeight internal voterWeight_;
     // Needed information to count ballots for an election
     struct BallotCount {
         uint256 tally;
@@ -53,7 +58,7 @@ contract VotingBooth is BaseSubModule {
         BaseSubModule(SubModuleIdentifier_, _baseModule)
     {
         voteCoImp_ = VotingCoordinator(_baseModule);
-        _isCurrent(); // FIXME change to push over pull
+        _isCurrent(); // FIXME get from spoke DAO every call
     }
 
     function init() external override {
@@ -83,7 +88,7 @@ contract VotingBooth is BaseSubModule {
     ) 
         external 
     {
-        // TODO only proposals directory/executor
+        // QS only proposal requester 
         _isCurrent();
         uint256 currentExpiry = storageImp_.getProposalExpiry(_propID);
 
@@ -127,8 +132,8 @@ contract VotingBooth is BaseSubModule {
         );
         _isCurrent();
 
-        // QS Should revert if voterID does not exist
-        uint256 voteWeight = 100; //getVoterWeight(_voterID);
+        // Will revert if voter does not own Explorer token
+        uint256 voteWeight = voterWeight_.getVoterWeight(msg.sender);
 
         storageImp_.castVote(_propID, _voterID, voteWeight, _vote);
 

@@ -6,6 +6,7 @@ import "./IERC721.sol";
 
 interface IExplorer is IERC721 {
     function isExplorer(address _explorer) external view returns(bool);
+    function getOwnerToken(address _owner) external view returns(uint256);
 
     function mint(address _to) external returns(uint256);
 }

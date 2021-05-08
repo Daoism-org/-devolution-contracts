@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-import "./IBaseModule.sol";
+import "../spoke/BaseDaoLibrary.sol";
 import "../spoke/BaseDao.sol";
+import "./IBaseModule.sol";
 
 abstract contract BaseSubModule {
     // Identifier for the submodule

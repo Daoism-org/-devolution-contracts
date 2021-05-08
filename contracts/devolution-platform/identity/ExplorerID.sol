@@ -79,7 +79,14 @@ contract ExplorerID is IERC721 {
      *          As one address can only ever own one token this function returns
      *          the `_owner`'s token ID.
      */
-    function balanceOf(address _owner) external view override returns(uint256 tokenID) {
+    function balanceOf(address _owner) external view override returns(uint256) {
+        if(explorersToIDs_[_owner] == 0) {
+            return 0;
+        }
+        return 1;
+    }
+
+    function getOwnerToken(address _owner) external view returns(uint256) {
         return explorersToIDs_[_owner];
     }
 

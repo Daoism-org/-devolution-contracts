@@ -5,9 +5,6 @@ import "../base-implementations/modules/BaseModule.sol";
 import "../base-implementations/spoke/BaseDaoLibrary.sol";
 
 contract VotingCoordinator is BaseModule {
-    address internal base_; // TODO
-    // Storage for valid state modifiers
-    mapping(address => bool) internal stateModifiers_;
 
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -50,7 +47,9 @@ contract VotingCoordinator is BaseModule {
         view 
         returns(bool) 
     {
-        return stateModifiers_[_checked];
+        return subModulesRegistry_[
+            subModuleLookup_[_checked]
+        ].inUse;
         // TODO should also have a check for executor address?
     }
 

@@ -4,7 +4,15 @@ pragma solidity 0.7.6;
 import "./BaseDaoLibrary.sol";
 import "../modules/IBaseModule.sol";
 
+/**
+ * @author
+ * @notice  
+ */
 abstract contract BaseDao {
+    // Identifier for the module
+    bytes32 public immutable ModuleIdentifier;
+     // Constant of this sub modules identifier
+    bytes32 internal constant DaoIdentifier_ = "SpokeDaoV_0.1";
     // Storage for the devolution base DAO
     address internal devolutionBase_; // FUTURE fif needed make interface
     // Storage of the deployer for once off access
@@ -55,6 +63,7 @@ abstract contract BaseDao {
 
     constructor(address _devolutionBase) {
         devolutionBase_ = _devolutionBase;
+        ModuleIdentifier = DaoIdentifier_;
 
         _registerModule(
             BaseDaoLibrary.DevolutionDao,
