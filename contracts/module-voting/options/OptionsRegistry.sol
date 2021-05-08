@@ -67,7 +67,7 @@ contract OptionsRegistry is BaseSubModule {
         bytes32 _moduleIdentifier,
         bytes4 _functionSignature,
         string calldata _requiredData
-    ) external {
+    ) external returns(bytes32 optionID) {
         require(
             this.getModuleFromBase(_moduleIdentifier) == msg.sender,
             "Only module modify and options"
@@ -75,7 +75,7 @@ contract OptionsRegistry is BaseSubModule {
 
         address moduleInstance = this.getModuleFromBase(_moduleIdentifier);
 
-        bytes32 optionID = bytes32(
+        optionID = bytes32(
             keccak256(
                 abi.encodePacked(
                     _moduleIdentifier, 

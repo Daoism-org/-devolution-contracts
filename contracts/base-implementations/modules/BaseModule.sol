@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-import "../spoke/BaseDaoLibrary.sol";
-import "../spoke/BaseDao.sol";
 import "./IBaseModule.sol";
+import "../spoke/BaseDao.sol";
+import "../spoke/BaseDaoLibrary.sol";
+import "../../module-voting/options/IOptionsRegistry.sol";
 
 /**
  * @author
@@ -39,6 +40,14 @@ abstract contract BaseModule {
         address oldModule, 
         address module,
         bool moduleInUse
+    );
+
+    event OptionRegistered(
+        bytes32 optionID,
+        bytes32 moduleIdentifier,
+        address moduleImplementation,
+        bytes4 functionSignature,
+        string requiredData
     );
 
     // -------------------------------------------------------------------------
@@ -239,11 +248,27 @@ abstract contract BaseModule {
         );
     }
 
-    // function _registerOption(
-    //    bytes32 _moduleIdentifier,
-    //     bytes4 _functionSignature,
-    //     string calldata _requiredData
-    // ) internal {
+    function _registerOption(
+       bytes32 _moduleIdentifier,
+        bytes4 _functionSignature,
+        string calldata _requiredData
+    ) internal {
+        IOptionsRegistry optionsReg = IOptionsRegistry(this.getModuleFromBase(
+            BaseDaoLibrary.OptionsRegistry
+        ));
 
-    // }
+        bytes32 optionID = optionsReg.registerOptionsOnModule(
+            _moduleIdentifier,
+            _functionSignature,
+            _requiredData
+        );
+
+        emit OptionRegistered(
+            optionID,
+            _moduleIdentifier,
+            address(this),
+            _functionSignature,
+            _requiredData
+        );
+    }
 }

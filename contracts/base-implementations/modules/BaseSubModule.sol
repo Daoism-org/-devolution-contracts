@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-import "../spoke/BaseDaoLibrary.sol";
-import "../spoke/BaseDao.sol";
 import "./IBaseModule.sol";
+import "../spoke/BaseDao.sol";
+import "../spoke/BaseDaoLibrary.sol";
+import "../../module-voting/options/IOptionsRegistry.sol";
 
 abstract contract BaseSubModule {
     // Identifier for the submodule
@@ -12,6 +13,16 @@ abstract contract BaseSubModule {
     IBaseModule internal baseModule_; 
     BaseDao internal baseDaoInstance_;
 
+    // -------------------------------------------------------------------------
+    // EVENTS
+
+    event OptionRegistered(
+        bytes32 optionID,
+        bytes32 moduleIdentifier,
+        address moduleImplementation,
+        bytes4 functionSignature,
+        string requiredData
+    );
 
     // -------------------------------------------------------------------------
     // MODIFIERS
@@ -79,10 +90,31 @@ abstract contract BaseSubModule {
     //     string calldata _requiredData
     // ) external virtual;
         // QS move modules to using new interface
-        // May need to make internal execution to make it neater
-        
-        // modules 
-        // May need to do it per sub module if the gas restrictions 
-        // get too high.
 
+    // -------------------------------------------------------------------------
+    // INTERNAL FUNCTIONS
+
+    function _registerOption(
+       bytes32 _moduleIdentifier,
+        bytes4 _functionSignature,
+        string calldata _requiredData
+    ) internal {
+        IOptionsRegistry optionsReg = IOptionsRegistry(this.getModuleFromBase(
+            BaseDaoLibrary.OptionsRegistry
+        ));
+
+        bytes32 optionID = optionsReg.registerOptionsOnModule(
+            _moduleIdentifier,
+            _functionSignature,
+            _requiredData
+        );
+
+        emit OptionRegistered(
+            optionID,
+            _moduleIdentifier,
+            address(this),
+            _functionSignature,
+            _requiredData
+        );
+    }
 }
