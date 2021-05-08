@@ -35,7 +35,6 @@ contract ReputationToken is IERC20, BaseSubModule {
         // module which is turn getting it from the spoke dao.
         // FIXME Get address of reputation distributor 
         // QS get ID from owned tokens
-        // FIXME Get address of identity token to turn address into token ID
     }
 
     // -------------------------------------------------------------------------
@@ -61,7 +60,11 @@ contract ReputationToken is IERC20, BaseSubModule {
     }
 
     function balanceOf(address _account) external view override returns(uint256) {
-        uint256 ownedTokenID = identityToken_.getOwnerToken(_account);
+        uint256 ownedTokenID = IExplorer(
+            baseModule_.getModuleFromBase(
+                BaseDaoLibrary.DevolutionSystemIdentity
+            )
+        ).getOwnerToken(_account);
         return balances_[ownedTokenID];
     }
 
@@ -79,7 +82,11 @@ contract ReputationToken is IERC20, BaseSubModule {
         external 
         onlyModule(BaseDaoLibrary.ReputationDistribution) 
     {
-        uint256 ownedTokenID = identityToken_.getOwnerToken(_to);
+        uint256 ownedTokenID = IExplorer(
+            baseModule_.getModuleFromBase(
+                BaseDaoLibrary.DevolutionSystemIdentity
+            )
+        ).getOwnerToken(_to);
 
         require(
             ownedTokenID != 0,
@@ -90,7 +97,8 @@ contract ReputationToken is IERC20, BaseSubModule {
     }
 
     function approve(address spender, uint256 amount) external override returns(bool) {
-        // TODO maybe remove? Maybe use as indicator of proxy voting?
+        // FUTURE maybe remove? Maybe use as indicator of proxy voting?
+        return false;
     }
 
     function transfer(

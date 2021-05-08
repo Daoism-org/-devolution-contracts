@@ -40,8 +40,7 @@ contract GeneralCensus is BaseSubModule {
     }
 
     function init() external override {
-        // TODO needs to get the address of the executor from the base
-        // module which is turn getting it from the spoke dao.
+
     }
 
     // -------------------------------------------------------------------------
@@ -74,7 +73,11 @@ contract GeneralCensus is BaseSubModule {
             uint256 tallyWeightFor,
             uint256 tallyVotesAgainst,
             uint256 tallyWeightAgainst
-        ) = storageImp_.getProposalElectionResults(_propID);
+        ) = VoteStorage(
+            baseModule_.getModuleFromBase(
+                BaseDaoLibrary.VoteStorage
+            )
+        ).getProposalElectionResults(_propID);
         (
             bool votesReached, 
             bool voteIsFor
@@ -190,7 +193,12 @@ contract GeneralCensus is BaseSubModule {
         (
             uint256 totalVotes,
             uint256 totalWeight
-        ) = storageImp_.getProposalElectionTotals(_propID);
+        ) = VoteStorage(
+            baseModule_.getModuleFromBase(
+                BaseDaoLibrary.VoteStorage
+            )
+        ).getProposalElectionTotals(_propID);
+        
         if(
             totalVotes >= minimumVotes &&
             totalWeight >= minimumWeight

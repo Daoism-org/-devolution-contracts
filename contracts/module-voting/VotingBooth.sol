@@ -11,13 +11,6 @@ contract VotingBooth is BaseSubModule {
     bytes32 internal constant SubModuleIdentifier_ = "VotingBooth";
     // NOTES
     VotingCoordinator internal voteCoImp_; 
-    // NOTES
-    VoteStorage internal storageImp_;
-    // NOTES
-    // QS get all of these instances into the contract through spoke DAO
-    IVoteWeight internal voterWeight_;
-    // NOTES
-    address internal proposalProposer_;
     // Needed information to count ballots for an election
     struct BallotCount {
         uint256 tally;
@@ -60,11 +53,9 @@ contract VotingBooth is BaseSubModule {
         BaseSubModule(SubModuleIdentifier_, _baseModule)
     {
         voteCoImp_ = VotingCoordinator(_baseModule);
-        _isCurrent(); // FIXME get from spoke DAO every call
     }
 
     function init() external override {
-        // TODO needs to get the address of the executor from the base
         // module which is turn getting it from the spoke dao.
     }
 
@@ -91,8 +82,13 @@ contract VotingBooth is BaseSubModule {
         external 
         onlyModule(BaseDaoLibrary.ProposalRequester)
     {
-        _isCurrent();
-        uint256 currentExpiry = storageImp_.getProposalExpiry(_propID);
+        VoteStorage voteStorage = VoteStorage(
+            baseModule_.getModuleFromBase(
+                BaseDaoLibrary.VoteStorage
+            )
+        );
+
+        uint256 currentExpiry = voteStorage.getProposalExpiry(_propID);
 
         require(
             currentExpiry == 0,
@@ -104,7 +100,7 @@ contract VotingBooth is BaseSubModule {
             "Given expiry time invalid"
         );
 
-        storageImp_.setElectionExpiry(_propID, _expiryTimestamp);
+        voteStorage.setElectionExpiry(_propID, _expiryTimestamp);
 
         emit ProposalElectionRegistered(
             _propID,
@@ -132,12 +128,19 @@ contract VotingBooth is BaseSubModule {
             isValidProposal(_propID),
             "prop expired or non-existant"
         );
-        _isCurrent();
 
         // Will revert if voter does not own Explorer token
-        uint256 voteWeight = voterWeight_.getVoterWeight(msg.sender);
+        uint256 voteWeight = IVoteWeight(
+            baseModule_.getModuleFromBase(
+                BaseDaoLibrary.VotingWeight
+            )
+        ).getVoterWeight(msg.sender);
 
-        storageImp_.castVote(_propID, _voterID, voteWeight, _vote);
+        VoteStorage(
+            baseModule_.getModuleFromBase(
+                BaseDaoLibrary.VoteStorage
+            )
+        ).castVote(_propID, _voterID, voteWeight, _vote);
 
         emit BallotCast(
             _propID,
@@ -152,20 +155,19 @@ contract VotingBooth is BaseSubModule {
      *          period.
      */
     function isValidProposal(uint256 _propID) internal view returns(bool) {
-        uint256 currentExpiry = storageImp_.getProposalExpiry(_propID);
+        VoteStorage voteStorage = VoteStorage(
+            baseModule_.getModuleFromBase(
+                BaseDaoLibrary.VoteStorage
+            )
+        );
+        
+        uint256 currentExpiry = voteStorage.getProposalExpiry(_propID);
 
         if(currentExpiry == 0) {
             return false;
-        } else if(storageImp_.isProposalInVoteWindow(_propID)) {
+        } else if(voteStorage.isProposalInVoteWindow(_propID)) {
             return false;
         }
         return true;
-    }
-
-    function _isCurrent() internal {
-        address received = voteCoImp_.getStorage();
-        if(address(storageImp_) != received) {
-            storageImp_ = VoteStorage(received);
-        }
     }
 }

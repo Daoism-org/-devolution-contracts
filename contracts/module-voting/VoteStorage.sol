@@ -54,7 +54,6 @@ contract VoteStorage is BaseSubModule {
     }
 
     function init() external override {
-        // TODO needs to get the address of the executor from the base
         // module which is turn getting it from the spoke dao.
     }
 
