@@ -37,8 +37,9 @@ describe("Basic Deployment Test", () =>  {
 
         // Spoke DAO contracts
         SpokeDaoContract = await ethers.getContractFactory("SpokeDao");
-        VotingModuleContract = await ethers.getContractFactory("NFT");
-        ReputationModuleContract = await ethers.getContractFactory("NFT");
+
+        // VotingModuleContract = await ethers.getContractFactory("NFT");
+        // ReputationModuleContract = await ethers.getContractFactory("NFT");
 
         // Getting signers
         [
@@ -52,11 +53,19 @@ describe("Basic Deployment Test", () =>  {
         // Deploying contracts
         DevBaseInstance = await DevBaseContract.deploy();
         DevIDInstance = await DevIDContract.deploy();
+
+        await DevBaseInstance.addIdentityInstance(DevIDInstance.address);
         
         SpokeDaoInstance = await SpokeDaoContract.deploy(
             DevBaseInstance.address
         );
-        VotingModuleInstance = await VotingModuleContract.deploy();
+        // VotingModuleInstance = await VotingModuleContract.deploy();
 
+    });
+
+    describe("Creating Lot Tests", () => { 
+        it("Creating a lot with event", async () => {
+            console.log("here");
+        });
     });
 });
