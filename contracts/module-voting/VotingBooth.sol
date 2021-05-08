@@ -16,6 +16,8 @@ contract VotingBooth is BaseSubModule {
     // NOTES
     // QS get all of these instances into the contract through spoke DAO
     IVoteWeight internal voterWeight_;
+    // NOTES
+    address internal proposalProposer_;
     // Needed information to count ballots for an election
     struct BallotCount {
         uint256 tally;
@@ -87,8 +89,8 @@ contract VotingBooth is BaseSubModule {
         uint256 _expiryTimestamp
     ) 
         external 
+        onlyModule(BaseDaoLibrary.ProposalRequester)
     {
-        // QS only proposal requester 
         _isCurrent();
         uint256 currentExpiry = storageImp_.getProposalExpiry(_propID);
 

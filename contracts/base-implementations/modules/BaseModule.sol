@@ -28,6 +28,8 @@ abstract contract BaseModule {
     mapping(bytes32 => SubModule) internal subModulesRegistry_;
     // Reverse look up
     mapping(address => bytes32) internal subModuleLookup_;
+    // Array of all sub modules for easy initialisation with Spoke
+    bytes32[] internal subModuleIdentifiers_;
     
     // -------------------------------------------------------------------------
     // EVENTS
@@ -95,6 +97,10 @@ abstract contract BaseModule {
 
     function getSubModuleAddress(bytes32 _identifier) external view returns(address) {
         return subModulesRegistry_[_identifier].implementation;
+    }
+
+    function getAllSubModules() external view returns(bytes32[] memory) {
+        return subModuleIdentifiers_;
     }
 
     // -------------------------------------------------------------------------
@@ -191,6 +197,9 @@ abstract contract BaseModule {
         address currentImplementation = subModulesRegistry_[
             _identifier
         ].implementation;
+        if(currentImplementation == address(0)) {
+            subModuleIdentifiers_.push(_identifier);
+        }
         // Clearing the reverse look up mapping for replaced submodule.
         subModuleLookup_[currentImplementation] = "";
         // Storing the new submodule in the lookup

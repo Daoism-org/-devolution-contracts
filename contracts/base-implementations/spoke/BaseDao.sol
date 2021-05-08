@@ -23,9 +23,10 @@ abstract contract BaseDao {
     struct Module {
         address implementation; 
         bool inUse;
+        bool isSubModule;
     }
     // identifier of the module to its information
-    mapping(bytes32 => Module) internal modulesRegistry_;
+    mapping(bytes32 => Module) internal allSpokeModules_;
 
     // -------------------------------------------------------------------------
     // EVENTS
@@ -42,7 +43,7 @@ abstract contract BaseDao {
 
     modifier onlyExecutor() {
         require(
-            msg.sender == modulesRegistry_[
+            msg.sender == allSpokeModules_[
                 BaseDaoLibrary.OptionsExecutor
             ].implementation,
             "Only executor may call"
@@ -136,13 +137,13 @@ abstract contract BaseDao {
         bytes32 _identifier
     ) external view returns(address, bool) {
         return (
-            modulesRegistry_[_identifier].implementation,
-            modulesRegistry_[_identifier].inUse
+            allSpokeModules_[_identifier].implementation,
+            allSpokeModules_[_identifier].inUse
         );
     }
 
     function getModuleAddress(bytes32 _identifier) external view returns(address) {
-        return modulesRegistry_[_identifier].implementation;
+        return allSpokeModules_[_identifier].implementation;
     }
 
     // -------------------------------------------------------------------------
@@ -190,25 +191,55 @@ abstract contract BaseDao {
         address _implementation,
         bool _use
     ) 
-        private 
+        internal 
     {
+        IBaseModule module = IBaseModule(_implementation);
         require(
-            IBaseModule(_implementation).getModuleIdentifier() == _identifier,
+            module.getModuleIdentifier() == _identifier,
             "Implementation ID mismatch"
         );
 
-        address currentImplementation = modulesRegistry_[_identifier].implementation;
+        address currentImplementation = allSpokeModules_[_identifier].implementation;
 
-        modulesRegistry_[_identifier] = Module({
+        allSpokeModules_[_identifier] = Module({
             implementation: _implementation,
-            inUse: _use
+            inUse: _use,
+            isSubModule: false
         });
+
         emit ModuleRegistryUpdated(
             _identifier, 
             currentImplementation, 
             _implementation,
             _use
         );
+
+        _registerSubModules(module, module.getAllSubModules());
+    }
+
+    function _registerSubModules(IBaseModule _module, bytes32[] memory _identifiers) internal {
+        for (uint256 i = 0; i < _identifiers.length; i++) {
+            // Getting the implementation address and use status
+            (
+                address implementation,
+                bool isInUse
+            ) = _module.getSubModuleImplementationAndUse(
+                _identifiers[i]
+            );
+            // Storing the submodule information
+            allSpokeModules_[_identifiers[i]] = Module({
+                implementation: implementation,
+                inUse: isInUse,
+                isSubModule: true
+            });
+
+            emit ModuleRegistryUpdated(
+                _identifiers[i], 
+                address(0),         // FUTURE should not be hardcoded
+                implementation,
+                isInUse
+            );
+        }
     }
 
     function _registerOptions() internal {

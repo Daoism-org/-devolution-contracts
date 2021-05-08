@@ -9,6 +9,7 @@ interface IBaseModule {
         bytes32 _identifier
     ) external view returns(address, bool);
     function getSubModuleAddress(bytes32 _identifier) external view returns(address);
+    function getAllSubModules() external view returns(bytes32[] memory);
 
     function init(
         bytes32[] memory _subModulesIdentifiers,
