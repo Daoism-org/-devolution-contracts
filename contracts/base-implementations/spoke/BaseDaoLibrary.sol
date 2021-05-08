@@ -23,13 +23,13 @@ library BaseDaoLibrary {
     // Voting Module
     bytes32 public constant VotingCoordinator = "VotingCoordinator";
     // Options
+        // Has rights to modify state on all contracts
     bytes32 public constant OptionsExecutor = "OptionsExecutor";
     bytes32 internal constant OptionsRegistry = "OptionsRegistry";
     // Proposals
-    // QS make proposal storage, requester and executor
     bytes32 internal constant ProposalStorage = "ProposalStorage";
     bytes32 internal constant ProposalRequester = "ProposalRequester";
-    bytes32 internal constant ProposalExecutor = "ProposalExecutor";
+    bytes32 internal constant ProposalExecutor = "ProposalExecutor";            
 
     // General Voting
     bytes32 internal constant GeneralCensus = "GeneralCensus";
