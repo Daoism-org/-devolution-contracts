@@ -8,4 +8,6 @@ library BaseDaoLibrary {
         "DevolutionSystemIdentity";
     bytes32 public constant SpokeSpecificIdentity = 
         "SpokeSpecificIdentity";
+    bytes32 public constant OptionsRegistry = 
+        "OptionsRegistry";
 }

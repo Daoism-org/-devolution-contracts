@@ -14,6 +14,7 @@ abstract contract BaseDao {
     // Information about modules
     struct Module {
         address implementation; 
+        bool inUse;
     }
     // identifier of the module to its information
     mapping(bytes32 => Module) internal modulesRegistry_;
@@ -24,7 +25,8 @@ abstract contract BaseDao {
     event ModuleRegistryUpdated(
         bytes32 identifier, 
         address oldModule, 
-        address module
+        address module,
+        bool moduleInUse
     );
 
     // -------------------------------------------------------------------------
@@ -56,7 +58,8 @@ abstract contract BaseDao {
 
         _registerModule(
             BaseDaoLibrary.DevolutionDao,
-            _devolutionBase
+            _devolutionBase,
+            true
         );
 
         deployer_ = msg.sender;
@@ -71,10 +74,13 @@ abstract contract BaseDao {
      *          identifier attached to a user in the form of an NFT.
      * @param   _spokeIdentityInstance Contract instance for the OPTIONAL spoke
      *          DAO specific identity NFT token.
+     * @notice  This function will revert if the msg.sender is not the deploying
+     *          address.
      */
     function init(
         address _executorInstance,
         address _identityInstance,
+        address _optionsRegistryInstance,
         address _spokeIdentityInstance
     ) external {
         require(
@@ -90,24 +96,38 @@ abstract contract BaseDao {
         // Setting up the needed addresses 
         _registerModule(
             BaseDaoLibrary.OptionsExecutor,
-            _executorInstance
+            _executorInstance,
+            true
         );
         _registerModule(
             BaseDaoLibrary.DevolutionSystemIdentity,
-            _identityInstance
+            _identityInstance,
+            true
+        );
+        _registerModule(
+            BaseDaoLibrary.OptionsRegistry,
+            _optionsRegistryInstance,
+            true
         );
         _registerModule(
             BaseDaoLibrary.SpokeSpecificIdentity,
-            _spokeIdentityInstance
+            _spokeIdentityInstance,
+            true
         );
+        // Marking the base DAO as initialised
         alive_ = true;
     }
 
     // -------------------------------------------------------------------------
     // NON-MODIFYING FUNCTIONS
 
-    function getModuleImplementation(bytes32 _identifier) external view returns(address) {
-        return modulesRegistry_[_identifier].implementation;
+    function getModuleImplementationAndUse(
+        bytes32 _identifier
+    ) external view returns(address, bool) {
+        return (
+            modulesRegistry_[_identifier].implementation,
+            modulesRegistry_[_identifier].inUse
+        );
     }
 
     // -------------------------------------------------------------------------
@@ -118,16 +138,22 @@ abstract contract BaseDao {
 
     function updateModule(
         bytes32 _identifier,
-        address _newInstance
+        address _newInstance,
+        bool _useNewInstance
     ) external onlyExecutor() isActive() {
-        address currentImplementation = this.getModuleImplementation(_identifier);
-
+        ( 
+            address currentImplementation,
+            bool inUse
+        ) = this.getModuleImplementationAndUse(_identifier);
+        // Requiring the new instance to be different, OR requiring an update
+        // of the in use status.
         require(
-            _newInstance != currentImplementation,
+            _newInstance != currentImplementation || 
+            _newInstance == currentImplementation && _useNewInstance != inUse,
             "New executor address invalid"
         );
-
-        _registerModule(_identifier, _newInstance);
+        // Registering the module. 
+        _registerModule(_identifier, _newInstance, _useNewInstance);
     }
 
     function killDao() external onlyExecutor() isActive() {
@@ -137,26 +163,33 @@ abstract contract BaseDao {
     // -------------------------------------------------------------------------
     // INTERNAL FUNCTIONS
 
+    /**
+     * @param   _identifier of the implementation.
+     * @param   _implementation address for the identifier.
+     * @param   _use the implementation address or not (off switch).
+     */
     function _registerModule(
         bytes32 _identifier,
-        address _implementation
+        address _implementation,
+        bool _use
     ) 
-        internal 
-        isActive() 
+        private 
     {
         address currentImplementation = modulesRegistry_[_identifier].implementation;
 
         modulesRegistry_[_identifier] = Module({
-            implementation: _implementation
+            implementation: _implementation,
+            inUse: _use
         });
         emit ModuleRegistryUpdated(
             _identifier, 
             currentImplementation, 
-            _implementation
+            _implementation,
+            _use
         );
     }
 
     function _registerOptions() internal {
-        
+        // TODO Make the options registry 
     }
 }
