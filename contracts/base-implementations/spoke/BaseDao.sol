@@ -2,6 +2,7 @@
 pragma solidity 0.7.6;
 
 import "./BaseDaoLibrary.sol";
+import "../modules/IBaseModule.sol";
 
 abstract contract BaseDao {
     // Storage for the devolution base DAO
@@ -93,6 +94,8 @@ abstract contract BaseDao {
         // Removing the deployer rights
         deployer_ = address(0);
         // Setting up the needed addresses 
+        // TODO need to change to registering the voting & rep coord
+        // TODO then from those get the addresses of these submodules below
         _registerModule(
             BaseDaoLibrary.OptionsExecutor,
             _executorInstance,
@@ -180,6 +183,11 @@ abstract contract BaseDao {
     ) 
         private 
     {
+        require(
+            IBaseModule(_implementation).getModuleIdentifier() == _identifier,
+            "Implementation ID mismatch"
+        );
+
         address currentImplementation = modulesRegistry_[_identifier].implementation;
 
         modulesRegistry_[_identifier] = Module({

@@ -6,8 +6,17 @@ import "./identity/IExplorer.sol";
 contract DevolutionBase {
     // Interface for identity solution
     IExplorer internal explorerID_;
-    // Storage of deployer address for initial set up
+    // Storage of the deployer for once off access
     address internal deployer_;
+    // If this Base DAO has been initialised
+    bool internal alive_;
+    // Information about modules
+    struct Dao {
+        address implementation; 
+        bool inUse;
+    }
+    // identifier of the module to its information
+    mapping(bytes32 => Dao) internal daoRegistry_;
 
     // -------------------------------------------------------------------------
     // EVENTS
@@ -48,6 +57,10 @@ contract DevolutionBase {
 
     // -------------------------------------------------------------------------
     // STATE MODIFYING FUNCTIONS
+
+    function addDao() external {
+        // TODO only factory or something
+    }
 
     /**
      * @param   _explorerIdentityContract The address of the explorer identity 

@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-contract VotingCoordinator {
+import "../base-implementations/modules/BaseModule.sol";
+import "../base-implementations/spoke/BaseDaoLibrary.sol";
+
+contract VotingCoordinator is BaseModule {
     address internal base_; // TODO
     // Storage for valid state modifiers
     mapping(address => bool) internal stateModifiers_;
@@ -9,8 +12,10 @@ contract VotingCoordinator {
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
 
-    constructor(address _base) {
-        base_ = _base;
+    constructor(address _spokeDao) BaseModule(
+        BaseDaoLibrary.VotingCoordinator,
+        _spokeDao
+    ) {
     }
 
     // -------------------------------------------------------------------------

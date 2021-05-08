@@ -4,13 +4,13 @@ pragma solidity 0.7.6;
 import "../spoke/BaseDaoLibrary.sol";
 import "../spoke/BaseDao.sol";
 
-abstract contract BaseModule {
+contract BaseModule {
     // Identifier for the module
     bytes32 public immutable ModuleIdentifier;
     // Storage of the deployer for once off access
     address internal deployer_;
     // 
-    BaseDao internal baseDao_;
+    BaseDao internal baseDaoInstance_;
     // If this Base DAO has been initialised
     bool internal alive_;
     // Information about modules
@@ -36,7 +36,7 @@ abstract contract BaseModule {
 
     modifier onlyExecutor() {
         require(
-            msg.sender == baseDao_.getModuleAddress(
+            msg.sender == baseDaoInstance_.getModuleAddress(
                 BaseDaoLibrary.OptionsExecutor
             ),
             "Only executor may call"
@@ -56,7 +56,7 @@ abstract contract BaseModule {
     // CONSTRUCTOR
 
     constructor(bytes32 _moduleIdentifier, address _spoke) {
-        baseDao_ = BaseDao(_spoke);
+        baseDaoInstance_ = BaseDao(_spoke);
         ModuleIdentifier = _moduleIdentifier;
     }
 
@@ -94,6 +94,10 @@ abstract contract BaseModule {
     // -------------------------------------------------------------------------
     // NON-MODIFYING FUNCTIONS
 
+    function getModuleIdentifier() external view returns(bytes32) {
+        return ModuleIdentifier;
+    }
+
     function getSubModuleImplementationAndUse(
         bytes32 _identifier
     ) external view returns(address, bool) {
@@ -103,7 +107,7 @@ abstract contract BaseModule {
         );
     }
 
-    function getModuleAddress(bytes32 _identifier) external view returns(address) {
+    function getSubModuleAddress(bytes32 _identifier) external view returns(address) {
         return subModulesRegistry_[_identifier].implementation;
     }
 
@@ -137,7 +141,7 @@ abstract contract BaseModule {
         alive_ = false;
     }
 
-    function registerOptions() external virtual;
+    // function registerOptions() external virtual;
         // TODO allows a high level module to add the options of sub 
         // modules 
 
