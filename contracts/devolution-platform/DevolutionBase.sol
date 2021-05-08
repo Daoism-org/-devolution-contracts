@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-import "../identity/IExplorer.sol";
+import "./identity/IExplorer.sol";
 
 contract DevolutionBase {
     // Interface for identity solution

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-import "./base/spoke/BaseDao.sol";
+import "../base-implementations/spoke/BaseDao.sol";
 
 
 contract SpokeDao is BaseDao {

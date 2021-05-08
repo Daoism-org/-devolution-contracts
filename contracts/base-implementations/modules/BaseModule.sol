@@ -1,27 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-import "./BaseDaoLibrary.sol";
+import "../spoke/BaseDaoLibrary.sol";
+import "../spoke/BaseDao.sol";
 
-abstract contract BaseDao {
-    // Storage for the devolution base DAO
-    address internal devolutionBase_; // FUTURE fif needed make interface
+abstract contract BaseModule {
+    // Identifier for the module
+    bytes32 public immutable ModuleIdentifier;
     // Storage of the deployer for once off access
     address internal deployer_;
+    // 
+    BaseDao internal baseDao_;
     // If this Base DAO has been initialised
     bool internal alive_;
     // Information about modules
-    struct Module {
+    struct SubModule {
         address implementation; 
         bool inUse;
     }
     // identifier of the module to its information
-    mapping(bytes32 => Module) internal modulesRegistry_;
-
+    mapping(bytes32 => SubModule) internal subModulesRegistry_;  
+    
     // -------------------------------------------------------------------------
     // EVENTS
 
-    event ModuleRegistryUpdated(
+    event SubModuleRegistryUpdated(
         bytes32 identifier, 
         address oldModule, 
         address module,
@@ -33,9 +36,9 @@ abstract contract BaseDao {
 
     modifier onlyExecutor() {
         require(
-            msg.sender == modulesRegistry_[
+            msg.sender == baseDao_.getModuleAddress(
                 BaseDaoLibrary.OptionsExecutor
-            ].implementation,
+            ),
             "Only executor may call"
         );
         _;
@@ -52,35 +55,14 @@ abstract contract BaseDao {
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
 
-    constructor(address _devolutionBase) {
-        devolutionBase_ = _devolutionBase;
-
-        _registerModule(
-            BaseDaoLibrary.DevolutionDao,
-            _devolutionBase,
-            true
-        );
-
-        deployer_ = msg.sender;
+    constructor(bytes32 _moduleIdentifier, address _spoke) {
+        baseDao_ = BaseDao(_spoke);
+        ModuleIdentifier = _moduleIdentifier;
     }
 
-    /**
-     * @param   _executorInstance Contract instance of the options execution. 
-     *          This is needed in order to protect option execution logic.
-     * @param   _identityInstance Contract instance of the system wide identity
-     *          solution. This contract is needed for identifying users through-
-     *          out the system. This identity is implemented as a unique uint256
-     *          identifier attached to a user in the form of an NFT.
-     * @param   _spokeIdentityInstance Contract instance for the OPTIONAL spoke
-     *          DAO specific identity NFT token.
-     * @notice  This function will revert if the msg.sender is not the deploying
-     *          address.
-     */
     function init(
-        address _executorInstance,
-        address _identityInstance,
-        address _optionsRegistryInstance,
-        address _spokeIdentityInstance
+        bytes32[] memory _subModulesIdentifiers,
+        address[] memory _subModulesInstances
     ) external {
         require(
             !alive_,
@@ -90,43 +72,39 @@ abstract contract BaseDao {
             msg.sender == deployer_,
             "Only deployer can access"
         );
+        require(
+            _subModulesIdentifiers.length ==
+            _subModulesIdentifiers.length,
+            "Identifier and address mismatch"
+        );
         // Removing the deployer rights
         deployer_ = address(0);
         // Setting up the needed addresses 
-        _registerModule(
-            BaseDaoLibrary.OptionsExecutor,
-            _executorInstance,
-            true
-        );
-        _registerModule(
-            BaseDaoLibrary.DevolutionSystemIdentity,
-            _identityInstance,
-            true
-        );
-        _registerModule(
-            BaseDaoLibrary.OptionsRegistry,
-            _optionsRegistryInstance,
-            true
-        );
-        _registerModule(
-            BaseDaoLibrary.SpokeSpecificIdentity,
-            _spokeIdentityInstance,
-            true
-        );
-        // Marking the base DAO as initialised
+        for (uint256 i = 0; i < _subModulesIdentifiers.length; i++) {
+            _registerSubModule(
+                _subModulesIdentifiers[i],
+                _subModulesInstances[i],
+                true
+            );
+        }
+        // Marking the module as initialised
         alive_ = true;
     }
 
     // -------------------------------------------------------------------------
     // NON-MODIFYING FUNCTIONS
 
-    function getModuleImplementationAndUse(
+    function getSubModuleImplementationAndUse(
         bytes32 _identifier
     ) external view returns(address, bool) {
         return (
-            modulesRegistry_[_identifier].implementation,
-            modulesRegistry_[_identifier].inUse
+            subModulesRegistry_[_identifier].implementation,
+            subModulesRegistry_[_identifier].inUse
         );
+    }
+
+    function getModuleAddress(bytes32 _identifier) external view returns(address) {
+        return subModulesRegistry_[_identifier].implementation;
     }
 
     // -------------------------------------------------------------------------
@@ -143,7 +121,7 @@ abstract contract BaseDao {
         ( 
             address currentImplementation,
             bool inUse
-        ) = this.getModuleImplementationAndUse(_identifier);
+        ) = this.getSubModuleImplementationAndUse(_identifier);
         // Requiring the new instance to be different, OR requiring an update
         // of the in use status.
         require(
@@ -152,13 +130,17 @@ abstract contract BaseDao {
             "New executor address invalid"
         );
         // Registering the module. 
-        _registerModule(_identifier, _newInstance, _useNewInstance);
+        _registerSubModule(_identifier, _newInstance, _useNewInstance);
     }
 
     function killDao() external onlyExecutor() isActive() {
         alive_ = false;
     }
-    
+
+    function registerOptions() external virtual;
+        // TODO allows a high level module to add the options of sub 
+        // modules 
+
     // -------------------------------------------------------------------------
     // INTERNAL FUNCTIONS
 
@@ -167,28 +149,24 @@ abstract contract BaseDao {
      * @param   _implementation address for the identifier.
      * @param   _use the implementation address or not (off switch).
      */
-    function _registerModule(
+    function _registerSubModule(
         bytes32 _identifier,
         address _implementation,
         bool _use
     ) 
         private 
     {
-        address currentImplementation = modulesRegistry_[_identifier].implementation;
+        address currentImplementation = subModulesRegistry_[_identifier].implementation;
 
-        modulesRegistry_[_identifier] = Module({
+        subModulesRegistry_[_identifier] = SubModule({
             implementation: _implementation,
             inUse: _use
         });
-        emit ModuleRegistryUpdated(
+        emit SubModuleRegistryUpdated(
             _identifier, 
             currentImplementation, 
             _implementation,
             _use
         );
-    }
-
-    function _registerOptions() internal {
-        // TODO Make the options registry 
     }
 }
