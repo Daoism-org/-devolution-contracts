@@ -54,6 +54,12 @@ abstract contract BaseSubModule {
         return SubModuleIdentifier;
     }
 
+    function getModuleFromBase(
+        bytes32 _identifier
+    ) external view returns(address) {
+        return baseModule_.getModuleFromBase(_identifier);
+    }
+
     // -------------------------------------------------------------------------
     // STATE MODIFYING FUNCTIONS
 
@@ -67,7 +73,14 @@ abstract contract BaseSubModule {
     // ONLY EXECUTOR STATE MODIFYING FUNCTIONS
 
     function registerOptionsOnModule() external virtual;
-        // TODO allows a high level module to add the options of sub 
+    // function registerOptionsOnModule(
+    //     bytes32 _moduleIdentifier,
+    //     bytes4 _functionSignature,
+    //     string calldata _requiredData
+    // ) external virtual;
+        // QS move modules to using new interface
+        // May need to make internal execution to make it neater
+        
         // modules 
         // May need to do it per sub module if the gas restrictions 
         // get too high.

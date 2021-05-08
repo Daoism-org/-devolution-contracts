@@ -144,7 +144,8 @@ abstract contract BaseModule {
         // of the in use status.
         require(
             _newInstance != currentImplementation || 
-            _newInstance == currentImplementation && _useNewInstance != inUse,
+            _newInstance == currentImplementation && 
+            _useNewInstance != inUse,
             "New executor address invalid"
         );
         // Registering the module. 
@@ -237,4 +238,12 @@ abstract contract BaseModule {
             _use
         );
     }
+
+    // function _registerOption(
+    //    bytes32 _moduleIdentifier,
+    //     bytes4 _functionSignature,
+    //     string calldata _requiredData
+    // ) internal {
+
+    // }
 }
