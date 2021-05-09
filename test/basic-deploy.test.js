@@ -189,4 +189,22 @@ describe("Basic Deployment Test", () =>  {
             console.log(GeneralCensusInstance.address)
         });
     });
+
+    describe("Can interact with contracts", () => { 
+        it("Getting all DAOs an explorer is a part of", async () => {
+            // QS Getting all DAOs an explorer is a part of
+        });
+
+        it("Getting options", async () => {
+            // TODO Getting options
+        });
+
+        it("Requesting a proposal", async () => {
+            // TODO Requesting a proposal
+        });
+
+        it("Voting on a proposal", async () => {
+            // TODO Voting on a proposal
+        });
+    });
 });

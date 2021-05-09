@@ -3,6 +3,7 @@ pragma solidity 0.7.6;
 
 import "./BaseDaoLibrary.sol";
 import "../modules/IBaseModule.sol";
+import "../../devolution-platform/IDevBase.sol";
 
 /**
  * @author
@@ -14,7 +15,7 @@ abstract contract BaseDao {
      // Constant of this sub modules identifier
     bytes32 internal constant DaoIdentifier_ = "SpokeDaoV_0.1";
     // Storage for the devolution base DAO
-    address internal devolutionBase_; // FUTURE fif needed make interface
+    IDevBase internal devolutionBase_; // FUTURE fif needed make interface
     // Storage of the deployer for once off access
     address internal deployer_;
     // If this Base DAO has been initialised
@@ -63,7 +64,7 @@ abstract contract BaseDao {
     // CONSTRUCTOR
 
     constructor(address _devolutionBase) {
-        devolutionBase_ = _devolutionBase;
+        devolutionBase_ = IDevBase(_devolutionBase);
         ModuleIdentifier = DaoIdentifier_;
 
         deployer_ = msg.sender;
@@ -97,7 +98,7 @@ abstract contract BaseDao {
         deployer_ = address(0);
         _registerModule(
             BaseDaoLibrary.DevolutionDao,
-            devolutionBase_,
+            address(devolutionBase_),
             true
         );
         // Setting up the needed addresses 
@@ -113,6 +114,7 @@ abstract contract BaseDao {
         );
         // Marking the base DAO as initialised
         alive_ = true;
+        devolutionBase_.addDao();
     }
 
     // -------------------------------------------------------------------------
@@ -161,6 +163,10 @@ abstract contract BaseDao {
 
     function killDao() external onlyExecutor() isActive() {
         alive_ = false;
+    }
+
+    function joinSpokeDao() external {
+        devolutionBase_.joinSpoke(msg.sender);
     }
     
     // -------------------------------------------------------------------------

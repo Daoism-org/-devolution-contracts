@@ -28,6 +28,8 @@ contract ExplorerID is IERC721 {
     mapping(address => mapping(address => bool)) internal operatorApprovals_;
     // Token ID => Spender address
     mapping(uint256 => address) internal approvedSpenders_;
+    // Spoke DAOs
+    mapping(uint256 => address[]) internal memberDaos_;
 
 
     // -------------------------------------------------------------------------
@@ -150,6 +152,11 @@ contract ExplorerID is IERC721 {
         return operatorApprovals_[_owner][_operator];
     }
 
+    function getJoinedSpokes(address _voter) external view returns(address[] memory) {
+        uint256 voterID = this.getOwnerToken(_voter);
+        return memberDaos_[voterID];
+    }
+
     // -------------------------------------------------------------------------
     // STATE MODIFYING FUNCTIONS
 
@@ -171,6 +178,11 @@ contract ExplorerID is IERC721 {
         );
 
         return tokenID;
+    }
+
+    function joinSpokeDao(address _voter, address _spokeDao) external onlyBase() {
+        uint256 voterID = this.getOwnerToken(_voter);
+        memberDaos_[voterID].push(_spokeDao);
     }
 
     /**

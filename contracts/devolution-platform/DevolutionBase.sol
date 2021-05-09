@@ -17,7 +17,7 @@ contract DevolutionBase {
         bool inUse;
     }
     // identifier of the module to its information
-    mapping(bytes32 => Dao) internal daoRegistry_;
+    mapping(address => Dao) internal daoRegistry_;
 
     // -------------------------------------------------------------------------
     // EVENTS
@@ -71,7 +71,8 @@ contract DevolutionBase {
     // STATE MODIFYING FUNCTIONS
 
     function addDao() external {
-        // TODO only factory or something
+        daoRegistry_[msg.sender].implementation = msg.sender;
+        daoRegistry_[msg.sender].inUse = true;
     }
 
     /**
@@ -105,5 +106,9 @@ contract DevolutionBase {
         );
 
         emit ExplorerJoined(msg.sender, explorerID);
+    }
+
+    function joinSpoke(address _voter) external {
+        explorerID_.joinSpokeDao(_voter, msg.sender);
     }
 }
