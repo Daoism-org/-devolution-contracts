@@ -26,6 +26,9 @@ module.exports = {
       timeout: 50000
     }
   },
+  kovanOvm: {
+    url: 'https://kovan.optimism.io:8546',
+  },
   solidity: '0.7.6',
   ovm: {
     solcVersion: '0.7.6'
