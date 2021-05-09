@@ -13,7 +13,6 @@ describe("Basic Deployment Test", () =>  {
 
     // Devolution platform contracts
     let DevBaseInstance;
-
     let DevIDInstance;
     
     // Spoke DAO contracts
@@ -45,6 +44,7 @@ describe("Basic Deployment Test", () =>  {
     let deployer;
     let spokeCreator;
     let spokeParticipant;
+    let proposalRequester;
     let voterFor;
     let voterAgainst;
 
@@ -73,6 +73,7 @@ describe("Basic Deployment Test", () =>  {
             deployer, 
             spokeCreator, 
             spokeParticipant, 
+            proposalRequester,
             voterFor,
             voterAgainst
         ] = await ethers.getSigners();
@@ -192,7 +193,13 @@ describe("Basic Deployment Test", () =>  {
 
     describe("Can interact with contracts", () => { 
         it("Getting all DAOs an explorer is a part of", async () => {
-            // QS Getting all DAOs an explorer is a part of
+            await SpokeDaoInstance.connect(spokeParticipant).joinSpokeDao();
+
+            let joinedDaos = await DevIDInstance.getJoinedSpokes(
+                spokeParticipant.address
+            );
+
+            console.log(joinedDaos);
         });
 
         it("Getting options", async () => {
@@ -200,11 +207,17 @@ describe("Basic Deployment Test", () =>  {
         });
 
         it("Requesting a proposal", async () => {
-            // TODO Requesting a proposal
+            await SpokeDaoInstance.connect(spokeParticipant).joinSpokeDao();
+            
+            await VoteBoothInstance.connect(proposalRequester).registerElection(
+                
+            )
         });
-
+        
         it("Voting on a proposal", async () => {
-            // TODO Voting on a proposal
+            await SpokeDaoInstance.connect(spokeParticipant).joinSpokeDao();
+
+
         });
     });
 });

@@ -4,6 +4,7 @@ pragma solidity 0.7.6;
 import "./BaseDaoLibrary.sol";
 import "../modules/IBaseModule.sol";
 import "../../devolution-platform/IDevBase.sol";
+import "../../devolution-platform/identity/IExplorer.sol";
 
 /**
  * @author
@@ -166,7 +167,24 @@ abstract contract BaseDao {
     }
 
     function joinSpokeDao() external {
-        devolutionBase_.joinSpoke(msg.sender);
+        if(devolutionBase_.isMember(msg.sender)) {
+            devolutionBase_.joinSpoke(msg.sender);
+        } else {
+            // Don't own a Devolution ID token it mints it for you
+            uint256 userIDToken = devolutionBase_.joinDevolution();
+
+            IExplorer(
+                allSpokeModules_[
+                    BaseDaoLibrary.DevolutionSystemIdentity
+                ].implementation
+            ).transferFrom(
+                address(this),
+                msg.sender,
+                userIDToken
+            );
+
+            devolutionBase_.joinSpoke(msg.sender);
+        }
     }
     
     // -------------------------------------------------------------------------
