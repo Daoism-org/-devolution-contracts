@@ -85,7 +85,8 @@ abstract contract BaseDao {
     //  */
     function init(
         address _votingInstance,
-        address _reputationInstance
+        address _reputationInstance,
+        address _identityToken
     ) external {
         require(
             !alive_,
@@ -111,6 +112,11 @@ abstract contract BaseDao {
         _registerModule(
             BaseDaoLibrary.ReputationCoordinator,
             _reputationInstance,
+            true
+        );
+        _registerModule(
+            BaseDaoLibrary.DevolutionSystemIdentity,
+            _identityToken,
             true
         );
         // Marking the base DAO as initialised
@@ -170,20 +176,10 @@ abstract contract BaseDao {
         if(devolutionBase_.isMember(msg.sender)) {
             devolutionBase_.joinSpoke(msg.sender);
         } else {
-            // Don't own a Devolution ID token it mints it for you
-            uint256 userIDToken = devolutionBase_.joinDevolution();
-
-            IExplorer(
-                allSpokeModules_[
-                    BaseDaoLibrary.DevolutionSystemIdentity
-                ].implementation
-            ).transferFrom(
-                address(this),
-                msg.sender,
-                userIDToken
+            require(
+                true == false,
+                "Sender must join devolution"
             );
-
-            devolutionBase_.joinSpoke(msg.sender);
         }
     }
     
@@ -200,7 +196,7 @@ abstract contract BaseDao {
         address _implementation,
         bool _use
     ) 
-        internal 
+        internal  
     {
         IBaseModule module = IBaseModule(_implementation);
         bytes32 registeredIdentifier = module.getModuleIdentifier();

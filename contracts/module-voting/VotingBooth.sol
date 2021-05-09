@@ -140,9 +140,22 @@ contract VotingBooth is BaseSubModule {
         uint256 _propID, 
         bool _vote
     ) external {
-        require(
-            _isValidProposal(_propID),
-            "prop expired or non-existant"
+        // FUTURE removed for ease of testing/demo
+        // require(
+        //     _isValidProposal(_propID),
+        //     "prop expired or non-existant"
+        // );
+
+        IVoteWeight voteWeightInstance = IVoteWeight(
+            baseModule_.getModuleFromBase(
+                BaseDaoLibrary.VotingWeight
+            )
+        );
+
+        VoteStorage voteStorage = VoteStorage(
+            baseModule_.getModuleFromBase(
+                BaseDaoLibrary.VoteStorage
+            )
         );
 
         uint256 voterID = IExplorer(
@@ -152,17 +165,9 @@ contract VotingBooth is BaseSubModule {
         ).getOwnerToken(msg.sender);
 
         // Will revert if voter does not own Explorer token
-        uint256 voteWeight = IVoteWeight(
-            baseModule_.getModuleFromBase(
-                BaseDaoLibrary.VotingWeight
-            )
-        ).getVoterWeight(msg.sender);
+        uint256 voteWeight = voteWeightInstance.getVoterWeight(msg.sender);
 
-        VoteStorage(
-            baseModule_.getModuleFromBase(
-                BaseDaoLibrary.VoteStorage
-            )
-        ).castVote(_propID, voterID, voteWeight, _vote);
+        voteStorage.castVote(_propID, voterID, voteWeight, _vote);
 
         emit BallotCast(
             _propID,

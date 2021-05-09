@@ -101,7 +101,7 @@ contract DevolutionBase {
         uint256 explorerID = explorerID_.mint(msg.sender);
 
         require(
-            explorerID == 0,
+            explorerID != 0,
             "Explorer ID not initialises"
         );
 

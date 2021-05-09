@@ -14,12 +14,18 @@
 ## Spoke DAO (i.e a deployed DAO)
 
 #### Join
-To join a spoke DAO call from the users address (i.e a signed transaction)
+First you will need to join the Devolution identity system by calling from the users address (i.e a signed transaction)
+```
+DevolutionBase.joinDevolution()
+```
+
+To join a spoke DAO:
 ```
 SpokeDaoInstance.joinSpokeDao();
 ```
 
 #### Getting all joined spoke DAOs
+
 To get all the spoke DAOs a user has joined, call:
 ```
 ExplorerIDInstance.getJoinedSpokes(address _voter)
@@ -27,6 +33,10 @@ ExplorerIDInstance.getJoinedSpokes(address _voter)
 Passing in the users address. This is a view function and thus does not require a transaction to be signed. 
 
 ## Getting available options
+Hardcode for now:
+```
+
+```
 
 ## Requesting a proposal 
 
@@ -35,3 +45,7 @@ VotingBooth.registerElection(bytes32 _optionID, bytes calldata _executionParamet
 ```
 
 ## Voting on a proposal 
+
+```
+VotingBooth.castBinaryVote(uint256 _propID, bool _vote)
+```

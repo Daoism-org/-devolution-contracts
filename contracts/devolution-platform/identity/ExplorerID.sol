@@ -52,7 +52,7 @@ contract ExplorerID is IERC721 {
         name_ = "Explorer ID";
         symbol_ = "eID";
         platformBase_ = _base;
-        ModuleIdentifier = BaseDaoLibrary.DaoIdentifier;
+        ModuleIdentifier = BaseDaoLibrary.DevolutionSystemIdentity;
     }
 
     // -------------------------------------------------------------------------
@@ -98,7 +98,7 @@ contract ExplorerID is IERC721 {
     }
 
     function isExplorer(address _explorer) external view returns(bool) {
-        if(explorersToIDs_[_explorer] == 0) {
+        if(explorersToIDs_[_explorer] != 0) {
             return true;
         }
     }
@@ -157,6 +157,15 @@ contract ExplorerID is IERC721 {
         return memberDaos_[voterID];
     }
 
+    function getAllSubModules() external view returns(bytes32[] memory) {
+        bytes32[] memory empty;
+        return empty;
+    }
+
+    function getModuleIdentifier() external view returns(bytes32) {
+        return ModuleIdentifier;
+    }
+
     // -------------------------------------------------------------------------
     // STATE MODIFYING FUNCTIONS
 
@@ -166,18 +175,17 @@ contract ExplorerID is IERC721 {
      */
     function mint(address _to) external onlyBase() returns(uint256) {
         totalSupply_ += 1;
-        uint256 tokenID = totalSupply_;
 
-        IDsToExplorers_[tokenID] = _to;
-        explorersToIDs_[_to] = tokenID;
+        IDsToExplorers_[totalSupply_] = _to;
+        explorersToIDs_[_to] = totalSupply_;
 
         emit Transfer(
             address(0), 
             _to, 
-            tokenID
+            totalSupply_
         );
 
-        return tokenID;
+        return totalSupply_;
     }
 
     function joinSpokeDao(address _voter, address _spokeDao) external onlyBase() {

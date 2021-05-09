@@ -64,7 +64,10 @@ contract VotingWeight is BaseSubModule {
         uint256 _spokeGov,
         uint256 _systemGov
     ) internal pure returns(uint256) {
-        // FUTURE make this into a real updatable equation of sorts
-        return(_reputation * _spokeGov * _systemGov); 
+        if(_reputation * _spokeGov * _systemGov > 0) {
+            // FUTURE make this into a real updatable equation of sorts
+            return(_reputation * _spokeGov * _systemGov); 
+        }
+        return 1;
     }
 }

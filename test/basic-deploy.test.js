@@ -95,9 +95,9 @@ describe("Basic Deployment Test", () =>  {
         );
         console.log("🛠  Devolution Identity Deployed.");
         
-        await (await DevBaseInstance.addIdentityInstance(
+        await DevBaseInstance.addIdentityInstance(
             DevIDInstance.address
-        )).wait();
+        );
         console.log("✅ Devolution Identity Successfully registered.");
         
         SpokeDaoInstance = await SpokeDaoContract.deploy(
@@ -213,9 +213,20 @@ describe("Basic Deployment Test", () =>  {
         let tx = await (
             await SpokeDaoInstance.init(
                 VotingModuleInstance.address,
-                ReputationModuleInstance.address
+                ReputationModuleInstance.address,
+                DevIDInstance.address
             )
         ).wait();
+
+        console.log("✅ Successfully initialised Spoke.");
+        
+        await DevBaseInstance.connect(spokeParticipant).joinDevolution();
+        console.log("...");
+        await DevBaseInstance.connect(proposalRequester).joinDevolution();
+        console.log("...");
+        await DevBaseInstance.connect(voterFor).joinDevolution();
+        console.log("...");
+        await DevBaseInstance.connect(voterAgainst).joinDevolution();
     });
 
     describe("Checks state changes as expected", () => { 
@@ -264,19 +275,79 @@ describe("Basic Deployment Test", () =>  {
                     currentTime
                 )
             ).wait();
-                
-            let propID = tx.events[0].args.proposalID.toString();
 
             let propInfoOne = await PropsStorageInstance.getProposalInfo(1)
 
             console.log(propInfoOne)
-
         });
         
         it("Voting on a proposal", async () => {
-            await SpokeDaoInstance.connect(spokeParticipant).joinSpokeDao();
+            await SpokeDaoInstance.connect(voterFor).joinSpokeDao();
+            await SpokeDaoInstance.connect(voterAgainst).joinSpokeDao();
 
+            let bytes32Conversion = await VoteBoothInstance.getBytes32Of(
+                "GeneralCensus.updateConsensusRequirements(uint256,uint256)"
+            );
 
+            let bytesConversion = await VoteBoothInstance.getBytes32Of(
+                "5,10"
+            );
+
+            let currentTime = await VoteBoothInstance.getCurrentTime();
+            
+            let tx = await (
+                await VoteBoothInstance.connect(proposalRequester).registerElection(
+                    bytes32Conversion.toString(),
+                    bytesConversion.toString(),
+                    currentTime
+                )
+            ).wait();
+
+            let propID = tx.events[0].args.proposalID.toString();
+
+            let voteForTx = await (
+                await VoteBoothInstance.connect(proposalRequester).castBinaryVote(
+                    propID.toString(),
+                    true
+                )
+            ).wait(); 
+            let voteForTwoTx = await (
+                await VoteBoothInstance.connect(voterFor).castBinaryVote(
+                    propID.toString(),
+                    true
+                )
+            ).wait(); 
+            let voteAgainstTx = await (
+                await VoteBoothInstance.connect(voterAgainst).castBinaryVote(
+                    propID.toString(),
+                    false
+                )
+            ).wait(); 
+                
+            console.log("Vote for");
+            console.log(voteForTx.events[0].args.proposalID.toString())
+            console.log(voteForTx.events[0].args.voterID.toString())
+            console.log(voteForTx.events[0].args.votePosition)
+            console.log("Vote for two");
+            console.log(voteForTwoTx.events[0].args.proposalID.toString())
+            console.log(voteForTwoTx.events[0].args.voterID.toString())
+            console.log(voteForTwoTx.events[0].args.votePosition)
+            console.log("Vote against");
+            console.log(voteAgainstTx.events[0].args.proposalID.toString())
+            console.log(voteAgainstTx.events[0].args.voterID.toString())
+            console.log(voteAgainstTx.events[0].args.votePosition)
+        });
+
+        it("Census on proposal", async () => {
+            let voteStorage = await VoteStorageInstance.getProposalElectionResults(
+                2
+            );
+            let census = await GeneralCensusInstance.doesElectionReachConsensus(
+                2
+            );
+
+            console.log(voteStorage)
+            console.log(census)
         });
     });
 });
