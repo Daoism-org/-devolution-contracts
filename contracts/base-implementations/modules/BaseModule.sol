@@ -1,27 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-import "./IBaseModule.sol";
-import "../spoke/BaseDao.sol";
-import "../spoke/BaseDaoLibrary.sol";
-import "../../module-voting/options/IOptionsRegistry.sol";
+import "./Base.sol";
 
 /**
  * @author
  * @notice  This contract needs to be inherited into any module that needs high
  *          level access to the spoke DAO. 
  */
-abstract contract BaseModule {
-    // Identifier for the module
-    bytes32 public immutable ModuleIdentifier;
-    // Storage of the deployer for once off access
-    address internal deployer_;
-    // Instance of spoke DAO
-    BaseDao internal baseDaoInstance_;
-    // If this Base DAO has been initialised
-    bool internal alive_;
-    enum StateSetup { NOT_DEPLOYED, REGISTERING, COMPLETE }
-    StateSetup internal stateSetup;
+abstract contract BaseModule is Base {
     // Information about modules
     struct SubModule {
         address implementation; 
@@ -43,60 +30,14 @@ abstract contract BaseModule {
         address module,
         bool moduleInUse
     );
-
-    event OptionRegistered(
-        bytes32 optionID,
-        bytes32 moduleIdentifier,
-        address moduleImplementation,
-        bytes4 functionSignature,
-        string requiredData
-    );
-
-    // -------------------------------------------------------------------------
-    // MODIFIERS
-
-    modifier onlyExecutor() {
-        require(
-            msg.sender == baseDaoInstance_.getModuleAddress(
-                BaseDaoLibrary.OptionsExecutor
-            ),
-            "Only executor may call"
-        );
-        _;
-    }
-
-    modifier isActive() {
-        require(
-            alive_,
-            "Base DAO not initialised"
-        );
-        _;
-    }
-
-    modifier onlySpoke() {
-        require(
-            msg.sender == address(baseDaoInstance_),
-            "Only Base DAO access"
-        );
-        _;
-    }
-
-    modifier onlyModule(bytes32 _identifier) {
-        require(
-            msg.sender == this.getModuleFromBase(_identifier),
-            "Only identified module"
-        );
-        _;
-    }
-
+    
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
 
-    constructor(bytes32 _moduleIdentifier, address _spoke) {
-        baseDaoInstance_ = BaseDao(_spoke);
-        ModuleIdentifier = _moduleIdentifier;
-        stateSetup = StateSetup.REGISTERING;
-        deployer_ = msg.sender;
+    constructor(bytes32 _moduleIdentifier, address _spoke) 
+        Base(_moduleIdentifier, _spoke, false, address(0))
+    {
+
     }
 
     function registerSubmodule(address _submodule) external {
@@ -118,36 +59,8 @@ abstract contract BaseModule {
         );
     }
 
-    function endSetUp() external {
-        require(
-            stateSetup == StateSetup.REGISTERING,
-            "State not registering"
-        );
-        require(
-            msg.sender == deployer_,
-            "Only deployer"
-        );
-
-        stateSetup = StateSetup.COMPLETE;
-        deployer_ = address(0);
-    }
-
     // -------------------------------------------------------------------------
     // NON-MODIFYING FUNCTIONS
-
-    function getModuleIdentifier() external view returns(bytes32) {
-        return ModuleIdentifier;
-    }
-
-    function getBaseDao() external view returns(address) {
-        return address(baseDaoInstance_);
-    }
-
-    function getModuleFromBase(
-        bytes32 _identifier
-    ) external view returns(address) {
-        return baseDaoInstance_.getModuleAddress(_identifier);
-    }
 
     function getSubModuleImplementationAndUse(
         bytes32 _identifier
@@ -277,30 +190,6 @@ abstract contract BaseModule {
             currentImplementation, 
             _implementation,
             _use
-        );
-    }
-
-    function _registerOption(
-       bytes32 _moduleIdentifier,
-        bytes4 _functionSignature,
-        string calldata _requiredData
-    ) internal {
-        IOptionsRegistry optionsReg = IOptionsRegistry(this.getModuleFromBase(
-            BaseDaoLibrary.OptionsRegistry
-        ));
-
-        bytes32 optionID = optionsReg.registerOptionsOnModule(
-            _moduleIdentifier,
-            _functionSignature,
-            _requiredData
-        );
-
-        emit OptionRegistered(
-            optionID,
-            _moduleIdentifier,
-            address(this),
-            _functionSignature,
-            _requiredData
         );
     }
 }
