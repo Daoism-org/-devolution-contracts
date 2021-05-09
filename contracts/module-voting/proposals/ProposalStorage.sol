@@ -68,7 +68,7 @@ contract ProposalStorage is BaseSubModule {
     ) 
         external 
         onlyModule(BaseDaoLibrary.VotingBooth) 
-        returns(uint256 propID)
+        returns(uint256)
     {
         propCount_ += 1;
 
@@ -76,5 +76,7 @@ contract ProposalStorage is BaseSubModule {
         proposals_[propCount_].executionParameters = _parameters;
         proposals_[propCount_].expiry = _expiryTimestamp;
         proposals_[propCount_].proposer = _proposer;
+
+        return propCount_;
     }
 }

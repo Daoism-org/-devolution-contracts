@@ -103,7 +103,19 @@ contract GeneralCensus is BaseSubModule {
     }
 
     // -------------------------------------------------------------------------
+    // ONLY EXECUTOR MODIFYING FUNCTIONS
+
+    function updateConsensusRequirements(
+        uint256 _minVotes,
+        uint256 _minWeight
+    ) external onlyExecutor() {
+        minimumVotes = _minVotes;
+        minimumWeight = _minWeight;
+    }
+
+    // -------------------------------------------------------------------------
     // STATE MODIFYING FUNCTIONS
+
 
     function registerOptionsOnModule() external override {
         // TODO upgradeability for consensus mins

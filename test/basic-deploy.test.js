@@ -5,6 +5,8 @@ const { solidity } = require('ethereum-waffle')
 const chaiAsPromised = require('chai-as-promised')
 const { expect } = chai
 
+const { BigNumber } = require("bignumber.js");
+
 chai.use(chaiAsPromised)
 chai.use(solidity)
 
@@ -23,11 +25,15 @@ describe("Basic Deployment Test", () =>  {
     let VoteStorageContract;
     let VoteBoothContract;
     let GeneralCensusContract;
+    let OptionsRegistryContract;
+    let PropsStorageContract;
     // Voting module instances
     let VotingModuleInstance;
     let VoteStorageInstance;
     let VoteBoothInstance;
     let GeneralCensusInstance;
+    let OptionsRegistryInstance;
+    let PropsStorageInstance;
     
     // Reputation Module
     let ReputationModuleContract;
@@ -62,6 +68,8 @@ describe("Basic Deployment Test", () =>  {
         VoteStorageContract = await ethers.getContractFactory("VoteStorage");
         VoteBoothContract = await ethers.getContractFactory("VotingBooth");
         GeneralCensusContract = await ethers.getContractFactory("GeneralCensus");
+        OptionsRegistryContract = await ethers.getContractFactory("OptionsRegistry");
+        PropsStorageContract = await ethers.getContractFactory("ProposalStorage");
         
         ReputationModuleContract = await ethers.getContractFactory("ReputationCoordinator");
         VotingWeightContract = await ethers.getContractFactory("VotingWeight");
@@ -80,22 +88,22 @@ describe("Basic Deployment Test", () =>  {
 
         // Deploying contracts
         DevBaseInstance = await DevBaseContract.deploy();
-        console.log("Devolution Base Deployed...");
+        console.log("🛠  Devolution Base Deployed.");
 
         DevIDInstance = await DevIDContract.deploy(
             DevBaseInstance.address
         );
-        console.log("Devolution Identity Deployed...");
+        console.log("🛠  Devolution Identity Deployed.");
         
         await (await DevBaseInstance.addIdentityInstance(
             DevIDInstance.address
         )).wait();
-        console.log("Devolution Identity Successfully registered");
+        console.log("✅ Devolution Identity Successfully registered.");
         
         SpokeDaoInstance = await SpokeDaoContract.deploy(
             DevBaseInstance.address
         );
-        console.log("Spoke DAO Deployed...");
+        console.log("🛠  Spoke DAO Deployed.");
 
         // ---------------------------------------------------------------------
         // Voting Module
@@ -103,14 +111,27 @@ describe("Basic Deployment Test", () =>  {
         VotingModuleInstance = await VotingModuleContract.deploy(
             SpokeDaoInstance.address
         );
+        console.log("...");
 
         VoteStorageInstance = await VoteStorageContract.deploy(
             VotingModuleInstance.address
         );
+        console.log("...");
 
         VoteBoothInstance = await VoteBoothContract.deploy(
             VotingModuleInstance.address
         );
+        console.log("...");
+
+        OptionsRegistryInstance = await OptionsRegistryContract.deploy(
+            VotingModuleInstance.address
+        );
+        console.log("...");
+
+        PropsStorageInstance = await PropsStorageContract.deploy(
+            VotingModuleInstance.address
+        );
+        console.log("...");
 
         GeneralCensusInstance = await GeneralCensusContract.deploy(
             VotingModuleInstance.address,
@@ -118,21 +139,33 @@ describe("Basic Deployment Test", () =>  {
             1
         );
 
-        console.log("Deployed Vote Module and submodules...");
+        console.log("🛠 Deployed Vote Module and submodules.");
 
         await VotingModuleInstance.registerSubmodule(
             VoteStorageInstance.address
         );
+        console.log("...");
 
         await VotingModuleInstance.registerSubmodule(
             VoteBoothInstance.address
         );
+        console.log("...");
+
+        await VotingModuleInstance.registerSubmodule(
+            OptionsRegistryInstance.address
+        );
+        console.log("...");
+
+        await VotingModuleInstance.registerSubmodule(
+            PropsStorageInstance.address
+        );
+        console.log("...");
 
         await VotingModuleInstance.registerSubmodule(
             GeneralCensusInstance.address
         );
 
-        console.log("Successfully registered submodules");
+        console.log("✅ Successfully registered submodules.");
 
         // ---------------------------------------------------------------------
         // Reputation Module
@@ -140,34 +173,39 @@ describe("Basic Deployment Test", () =>  {
         ReputationModuleInstance = await ReputationModuleContract.deploy(
             SpokeDaoInstance.address
         );
+        console.log("...");
 
         VotingWeightInstance = await VotingWeightContract.deploy(
             VotingModuleInstance.address
         );
+        console.log("...");
 
         ReputationTokenInstance = await ReputationTokenContract.deploy(
             VotingModuleInstance.address
         );
+        console.log("...");
 
         ReputationDistributionInstance = await ReputationDistributionContract.deploy(
             VotingModuleInstance.address
         );
 
-        console.log("Deployed Reputation Module and submodules...");
+        console.log("🛠 Deployed Reputation Module and submodules.");
 
         await ReputationModuleInstance.registerSubmodule(
             VotingWeightInstance.address
         );
+        console.log("...");
 
         await ReputationModuleInstance.registerSubmodule(
             ReputationTokenInstance.address
         );
+        console.log("...");
 
         await ReputationModuleInstance.registerSubmodule(
             ReputationDistributionInstance.address
         );
 
-        console.log("Successfully registered submodules");
+        console.log("✅ Successfully registered submodules.");
 
         // ---------------------------------------------------------------------
         // Registering modules on Spoke DAO
@@ -207,11 +245,32 @@ describe("Basic Deployment Test", () =>  {
         });
 
         it("Requesting a proposal", async () => {
-            await SpokeDaoInstance.connect(spokeParticipant).joinSpokeDao();
+            await SpokeDaoInstance.connect(proposalRequester).joinSpokeDao();
+
+            let bytes32Conversion = await VoteBoothInstance.getBytes32Of(
+                "GeneralCensus.updateConsensusRequirements(uint256,uint256)"
+            );
+
+            let bytesConversion = await VoteBoothInstance.getBytes32Of(
+                "5,10"
+            );
+
+            let currentTime = await VoteBoothInstance.getCurrentTime();
             
-            await VoteBoothInstance.connect(proposalRequester).registerElection(
+            let tx = await (
+                await VoteBoothInstance.connect(proposalRequester).registerElection(
+                    bytes32Conversion.toString(),
+                    bytesConversion.toString(),
+                    currentTime
+                )
+            ).wait();
                 
-            )
+            let propID = tx.events[0].args.proposalID.toString();
+
+            let propInfoOne = await PropsStorageInstance.getProposalInfo(1)
+
+            console.log(propInfoOne)
+
         });
         
         it("Voting on a proposal", async () => {

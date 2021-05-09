@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@eth-optimism/hardhat-ovm": "0.1.0",
-    "@remix-project/remixd": "^0.3.5"
+    "@remix-project/remixd": "^0.3.5",
+    "bignumber.js": "9.0.1"
   }
 }

@@ -16,7 +16,7 @@ contract OptionsRegistry is BaseSubModule {
         bool active;
     }
     // Option ID => Option information
-    // Option ID = Hash of `moduleId.functionSig` function sig is inputted as bytes4 
+    // Option ID = Hash of `BaseDaoLibrary_Identifier.functionSig` function sig is inputted as bytes4 
     mapping(bytes32 => Option) internal options_;
     //
     struct ModuleOptions {

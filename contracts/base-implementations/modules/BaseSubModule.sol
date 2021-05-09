@@ -14,11 +14,12 @@ abstract contract BaseSubModule is Base {
     constructor(bytes32 _identifier, address _baseModule) 
         Base(
             _identifier, 
-            IBaseModule(baseModule_).getBaseDao(), 
+            address(0), 
             true, 
             _baseModule
         )
     {
+        spokeDaoInstance_ = BaseDao(IBaseModule(baseModule_).getBaseDao());
         SubModuleIdentifier = _identifier;
     }
 

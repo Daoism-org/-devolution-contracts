@@ -111,11 +111,12 @@ contract VotingBooth is BaseSubModule {
             currentExpiry == 0,
             "Prop ID already exists"
         );
-        require(
-            _expiryTimestamp != 0 && 
-            _expiryTimestamp > block.timestamp,
-            "Given expiry time invalid"
-        );
+        // FUTURE removed this for ease of basic deployment
+        // require(
+        //     _expiryTimestamp != 0 && 
+        //     _expiryTimestamp >= block.timestamp,
+        //     "Given expiry time invalid"
+        // );
 
         voteStorage.setElectionExpiry(propID, _expiryTimestamp);
 

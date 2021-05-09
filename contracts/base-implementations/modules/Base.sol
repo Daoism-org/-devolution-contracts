@@ -137,6 +137,20 @@ abstract contract Base {
         return spokeDaoInstance_.getModuleAddress(_identifier);
     }
 
+    function getBytes32Of(string memory _identifier) external view returns(bytes32) {
+        return bytes32(
+            keccak256(
+                abi.encodePacked(
+                    _identifier
+                )
+            )
+        );
+    }
+
+    function getCurrentTime() external view returns(uint256) {
+        return block.timestamp;
+    }
+
 
     // -------------------------------------------------------------------------
     // INTERNAL FUNCTIONS
