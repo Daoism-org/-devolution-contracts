@@ -27,9 +27,7 @@ library BaseDaoLibrary {
     bytes32 public constant OptionsExecutor = "OptionsExecutor";
     bytes32 internal constant OptionsRegistry = "OptionsRegistry";
     // Proposals
-    bytes32 internal constant ProposalStorage = "ProposalStorage";
-    bytes32 internal constant ProposalRequester = "ProposalRequester";
-    bytes32 internal constant ProposalExecutor = "ProposalExecutor";            
+    bytes32 internal constant ProposalStorage = "ProposalStorage";         
 
     // General Voting
     bytes32 internal constant GeneralCensus = "GeneralCensus";

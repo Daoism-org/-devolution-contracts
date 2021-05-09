@@ -6,7 +6,8 @@
 |:---------|:------|
 1. Explorer ID token | `getJoinedSpokes(address _voter)`
 2. Spoke DAO | `joinSpokeDao()`
-3. Vote Coordinator | `getModuleOptions(bytes32 _moduleIdentifier)`, `registerElection(uint256 _propID, uint256 _expiryTimestamp)`
+3. Vote Coordinator | `getModuleOptions(bytes32 _moduleIdentifier)`
+3.1 Voting Booth | Requesting proposal: `registerElection(bytes32 _optionID, bytes calldata _executionParameters, uint256 _expiryTimestamp)`, Voting on proposal: `castBinaryVote(uint256 _propID, bool _vote)`
 4. Reputation Coordinator | 
 
 ## Spoke DAO (i.e a deployed DAO)

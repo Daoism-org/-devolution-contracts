@@ -3,7 +3,9 @@ pragma solidity 0.7.6;
 
 import "./VoteStorage.sol";
 import "./VotingCoordinator.sol";
+import "./proposals/IPropStorage.sol";
 import "../module-reputation/IVoteWeight.sol";
+import "../devolution-platform/identity/IExplorer.sol";
 import "../base-implementations/modules/BaseSubModule.sol";
 
 contract VotingBooth is BaseSubModule {
@@ -68,7 +70,9 @@ contract VotingBooth is BaseSubModule {
     }
 
     /**
-     * @param   _propID The ID of the proposal election being registered.
+     * @param   _optionID The ID of the option being registered.
+     * @param   _executionParameters The encoded execution parameters for the 
+     *          option proposal.
      * @param   _expiryTimestamp Timestamp for the expiration of this election.
      * @notice  This function will revert if the given proposal ID has already
      *          been registered. 
@@ -76,19 +80,32 @@ contract VotingBooth is BaseSubModule {
      *          in the past (before current time).
      */
     function registerElection(
-        uint256 _propID,
+        bytes32 _optionID,
+        bytes calldata _executionParameters,
         uint256 _expiryTimestamp
     ) 
         external 
-        onlyModule(BaseDaoLibrary.ProposalRequester)
     {
+        IPropStorage propStorage = IPropStorage(
+            baseModule_.getModuleFromBase(
+                BaseDaoLibrary.ProposalStorage
+            )
+        );
+
         VoteStorage voteStorage = VoteStorage(
             baseModule_.getModuleFromBase(
                 BaseDaoLibrary.VoteStorage
             )
         );
 
-        uint256 currentExpiry = voteStorage.getProposalExpiry(_propID);
+        uint256 propID = propStorage.createProposal(
+            _optionID,
+            _executionParameters,
+            _expiryTimestamp,
+            msg.sender
+        );
+
+        uint256 currentExpiry = voteStorage.getProposalExpiry(propID);
 
         require(
             currentExpiry == 0,
@@ -100,16 +117,15 @@ contract VotingBooth is BaseSubModule {
             "Given expiry time invalid"
         );
 
-        voteStorage.setElectionExpiry(_propID, _expiryTimestamp);
+        voteStorage.setElectionExpiry(propID, _expiryTimestamp);
 
         emit ProposalElectionRegistered(
-            _propID,
+            propID,
             _expiryTimestamp
         );
     }
 
     /**
-     * @param   _voterID Unique ID of the voters NFT ID token.
      * @param   _propID ID of the prop that is being voted on.
      * @param   _vote The users vote for (true) or against (false) the 
      *          proposal. TODO M better name?
@@ -121,13 +137,18 @@ contract VotingBooth is BaseSubModule {
      */
     function castBinaryVote(
         uint256 _propID, 
-        uint256 _voterID, 
         bool _vote
     ) external {
         require(
-            isValidProposal(_propID),
+            _isValidProposal(_propID),
             "prop expired or non-existant"
         );
+
+        uint256 voterID = IExplorer(
+            baseModule_.getModuleFromBase(
+                BaseDaoLibrary.DevolutionSystemIdentity
+            )
+        ).getOwnerToken(msg.sender);
 
         // Will revert if voter does not own Explorer token
         uint256 voteWeight = IVoteWeight(
@@ -140,11 +161,11 @@ contract VotingBooth is BaseSubModule {
             baseModule_.getModuleFromBase(
                 BaseDaoLibrary.VoteStorage
             )
-        ).castVote(_propID, _voterID, voteWeight, _vote);
+        ).castVote(_propID, voterID, voteWeight, _vote);
 
         emit BallotCast(
             _propID,
-            _voterID,
+            voterID,
             _vote
         );
     }
@@ -154,7 +175,7 @@ contract VotingBooth is BaseSubModule {
      * @return  bool If the proposal has been registered and is within voting
      *          period.
      */
-    function isValidProposal(uint256 _propID) internal view returns(bool) {
+    function _isValidProposal(uint256 _propID) internal view returns(bool) {
         VoteStorage voteStorage = VoteStorage(
             baseModule_.getModuleFromBase(
                 BaseDaoLibrary.VoteStorage
