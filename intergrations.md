@@ -1,22 +1,35 @@
 # Integrations
 
+# Required contracts for integration:
+
+| Contract | Calls |
+|:---------|:------|
+1. Explorer ID token | `getJoinedSpokes(address _voter)`
+2. Spoke DAO | `joinSpokeDao()`
+3. Vote Coordinator | `getModuleOptions(bytes32 _moduleIdentifier)`, `registerElection(uint256 _propID, uint256 _expiryTimestamp)`
+4. Reputation Coordinator | 
+
 ## Spoke DAO (i.e a deployed DAO)
 
 #### Join
 To join a spoke DAO call from the users address (i.e a signed transaction)
 ```
-joinSpokeDao();
+SpokeDaoInstance.joinSpokeDao();
 ```
 
 #### Getting all joined spoke DAOs
 To get all the spoke DAOs a user has joined, call:
 ```
-getJoinedSpokes(address _voter)
+ExplorerIDInstance.getJoinedSpokes(address _voter)
 ```
 Passing in the users address. This is a view function and thus does not require a transaction to be signed. 
 
 ## Getting available options
 
 ## Requesting a proposal 
+
+```
+VoterCoordInstance.registerElection(uint256 _propID, uint256 _expiryTimestamp)
+```
 
 ## Voting on a proposal 
