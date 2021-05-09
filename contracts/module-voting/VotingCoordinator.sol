@@ -13,16 +13,7 @@ contract VotingCoordinator is BaseModule {
         BaseDaoLibrary.VotingCoordinator,
         _spokeDao
     ) {
-    }
-
-    function init(
-        bytes32[] memory _subModulesIdentifiers,
-        address[] memory _subModulesInstances
-    ) external override {
-        _init(
-            _subModulesIdentifiers,
-            _subModulesInstances
-        );
+        
     }
 
     // -------------------------------------------------------------------------
@@ -32,7 +23,7 @@ contract VotingCoordinator is BaseModule {
      * @return  address The address of the current storage implementation.
      */
     function getStorage() external view returns(address) {
-        return address(0);
+        return address(0); // TODO update
     }
 
     /**

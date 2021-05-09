@@ -4,6 +4,7 @@ pragma solidity 0.7.6;
 import "./identity/IExplorer.sol";
 
 contract DevolutionBase {
+    bytes32 public constant DaoIdentifier = "DevolutionDao";
     // Interface for identity solution
     IExplorer internal explorerID_;
     // Storage of the deployer for once off access
@@ -38,10 +39,16 @@ contract DevolutionBase {
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
 
-    constructor() {}
+    constructor() {
+        deployer_ = msg.sender;
+    }
 
     // -------------------------------------------------------------------------
     // NON-STATE MODIFYING FUNCTIONS
+
+    function getModuleIdentifier() external view returns(bytes32) {
+        return DaoIdentifier;
+    }
 
     function isMember(address _explorer) external view returns(bool) {
         return explorerID_.isExplorer(_explorer);
@@ -53,6 +60,11 @@ contract DevolutionBase {
 
     function getBaseExecutorInstance() external view returns(address) {
         return address(explorerID_);
+    }
+
+    function getAllSubModules() external view returns(bytes32[] memory) {
+        bytes32[] memory empty;
+        return empty;
     }
 
     // -------------------------------------------------------------------------

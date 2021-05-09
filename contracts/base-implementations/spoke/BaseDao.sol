@@ -66,32 +66,24 @@ abstract contract BaseDao {
         devolutionBase_ = _devolutionBase;
         ModuleIdentifier = DaoIdentifier_;
 
-        _registerModule(
-            BaseDaoLibrary.DevolutionDao,
-            _devolutionBase,
-            true
-        );
-
         deployer_ = msg.sender;
     }
 
-    /**
-     * @param   _executorInstance Contract instance of the options execution. 
-     *          This is needed in order to protect option execution logic.
-     * @param   _identityInstance Contract instance of the system wide identity
-     *          solution. This contract is needed for identifying users through-
-     *          out the system. This identity is implemented as a unique uint256
-     *          identifier attached to a user in the form of an NFT.
-     * @param   _spokeIdentityInstance Contract instance for the OPTIONAL spoke
-     *          DAO specific identity NFT token.
-     * @notice  This function will revert if the msg.sender is not the deploying
-     *          address.
-     */
+    // /**
+    //  * @param   _executorInstance Contract instance of the options execution. 
+    //  *          This is needed in order to protect option execution logic.
+    //  * @param   _identityInstance Contract instance of the system wide identity
+    //  *          solution. This contract is needed for identifying users through-
+    //  *          out the system. This identity is implemented as a unique uint256
+    //  *          identifier attached to a user in the form of an NFT.
+    //  * @param   _spokeIdentityInstance Contract instance for the OPTIONAL spoke
+    //  *          DAO specific identity NFT token.
+    //  * @notice  This function will revert if the msg.sender is not the deploying
+    //  *          address.
+    //  */
     function init(
-        address _executorInstance,
-        address _identityInstance,
-        address _optionsRegistryInstance,
-        address _spokeIdentityInstance
+        address _votingInstance,
+        address _reputationInstance
     ) external {
         require(
             !alive_,
@@ -103,27 +95,20 @@ abstract contract BaseDao {
         );
         // Removing the deployer rights
         deployer_ = address(0);
+        _registerModule(
+            BaseDaoLibrary.DevolutionDao,
+            devolutionBase_,
+            true
+        );
         // Setting up the needed addresses 
-        // TODO need to change to registering the voting & rep coord
-        // TODO then from those get the addresses of these submodules below
         _registerModule(
-            BaseDaoLibrary.OptionsExecutor,
-            _executorInstance,
+            BaseDaoLibrary.VotingCoordinator,
+            _votingInstance,
             true
         );
         _registerModule(
-            BaseDaoLibrary.DevolutionSystemIdentity,
-            _identityInstance,
-            true
-        );
-        _registerModule(
-            BaseDaoLibrary.OptionsRegistry,
-            _optionsRegistryInstance,
-            true
-        );
-        _registerModule(
-            BaseDaoLibrary.SpokeSpecificIdentity,
-            _spokeIdentityInstance,
+            BaseDaoLibrary.ReputationCoordinator,
+            _reputationInstance,
             true
         );
         // Marking the base DAO as initialised
@@ -194,8 +179,9 @@ abstract contract BaseDao {
         internal 
     {
         IBaseModule module = IBaseModule(_implementation);
+        bytes32 registeredIdentifier = module.getModuleIdentifier();
         require(
-            module.getModuleIdentifier() == _identifier,
+            registeredIdentifier == _identifier,
             "Implementation ID mismatch"
         );
 

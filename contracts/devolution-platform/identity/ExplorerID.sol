@@ -45,7 +45,7 @@ contract ExplorerID is IERC721 {
     // -------------------------------------------------------------------------
     // CONSTRUCTOR
 
-    constructor(bytes32 _moduleIdentifier, address _base) 
+    constructor(address _base) 
     {
         name_ = "Explorer ID";
         symbol_ = "eID";

@@ -22,7 +22,8 @@ module.exports = {
       // because account balances are not automatically initiated with an ETH
       // balance (yet, sorry!).
       gasPrice: 0,
-      ovm: true // This sets the network as using the ovm and ensure contract will be compiled against that.
+      ovm: true, // This sets the network as using the ovm and ensure contract will be compiled against that.
+      timeout: 50000
     }
   },
   solidity: '0.7.6',

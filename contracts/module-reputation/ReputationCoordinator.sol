@@ -15,12 +15,28 @@ contract ReputationCoordinator is BaseModule {
     }
 
     function init(
-        bytes32[] memory _subModulesIdentifiers,
-        address[] memory _subModulesInstances
-    ) external override {
-        _init(
-            _subModulesIdentifiers,
-            _subModulesInstances
+        address _votingWeight,
+        address _reputationToken,
+        address _reputationDistributor
+    ) external {
+        bytes32 voteWeightID = BaseModule(_votingWeight).getModuleIdentifier();
+        bytes32 repTokenID = BaseModule(_reputationToken).getModuleIdentifier();
+        bytes32 repDistributorID = BaseModule(_reputationDistributor).getModuleIdentifier();
+
+        _registerSubModule(
+            voteWeightID,
+            _votingWeight,
+            true
+        );
+        _registerSubModule(
+            repTokenID,
+            _reputationToken,
+            true
+        );
+        _registerSubModule(
+            repDistributorID,
+            _reputationDistributor,
+            true
         );
     }
 }

@@ -20,6 +20,8 @@ abstract contract BaseModule {
     BaseDao internal baseDaoInstance_;
     // If this Base DAO has been initialised
     bool internal alive_;
+    enum StateSetup { NOT_DEPLOYED, REGISTERING, COMPLETE }
+    StateSetup internal stateSetup;
     // Information about modules
     struct SubModule {
         address implementation; 
@@ -93,12 +95,42 @@ abstract contract BaseModule {
     constructor(bytes32 _moduleIdentifier, address _spoke) {
         baseDaoInstance_ = BaseDao(_spoke);
         ModuleIdentifier = _moduleIdentifier;
+        stateSetup = StateSetup.REGISTERING;
+        deployer_ = msg.sender;
     }
 
-    function init(
-        bytes32[] memory _subModulesIdentifiers,
-        address[] memory _subModulesInstances
-    ) external virtual;
+    function registerSubmodule(address _submodule) external {
+        require(
+            stateSetup == StateSetup.REGISTERING,
+            "State not registering"
+        );
+        require(
+            msg.sender == deployer_,
+            "Only deployer"
+        );
+
+        bytes32 identifier = IBaseModule(_submodule).getModuleIdentifier();
+
+        _registerSubModule(
+            identifier,
+            _submodule,
+            true
+        );
+    }
+
+    function endSetUp() external {
+        require(
+            stateSetup == StateSetup.REGISTERING,
+            "State not registering"
+        );
+        require(
+            msg.sender == deployer_,
+            "Only deployer"
+        );
+
+        stateSetup = StateSetup.COMPLETE;
+        deployer_ = address(0);
+    }
 
     // -------------------------------------------------------------------------
     // NON-MODIFYING FUNCTIONS
@@ -213,7 +245,7 @@ abstract contract BaseModule {
         address _implementation,
         bool _use
     ) 
-        private 
+        internal 
     {
         // Ensure that the submodule and module have the same understanding of
         // implementation. 

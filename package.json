@@ -6,7 +6,8 @@
   "scripts": {
     "clean": "rimraf ./cache-ovm ./cache ./artifacts-ovm ./artifacts ./deployments",
     "build": "npx hardhat --network optimism compile",
-    "test": "npx hardhat --network optimism test"
+    "test-ovm": "npx hardhat --network optimism test",
+    "test": "npx hardhat test",
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "2.0.1",
@@ -22,6 +23,6 @@
     "mocha": "8.2.1"
   },
   "dependencies": {
-    "@eth-optimism/hardhat-ovm": "0.1.0"
+    "@eth-optimism/hardhat-ovm": "0.1.0",
   }
 }

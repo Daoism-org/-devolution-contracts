@@ -8,9 +8,8 @@ import "./VoteStorage.sol";
 contract GeneralCensus is BaseSubModule {
     // Constant of this sub modules identifier
     bytes32 internal constant SubModuleIdentifier_ = "GeneralCensus";
-    VotingCoordinator internal voteCoImp_; 
-    VoteStorage internal storageImp_;
     // 
+    VotingCoordinator internal voteCoImp_; 
     // Consensus parameters
     // The minimum number of votes cast for a vote to reach consensus
     uint256 public minimumVotes;
@@ -34,7 +33,6 @@ contract GeneralCensus is BaseSubModule {
     ) BaseSubModule(SubModuleIdentifier_, _baseModule)
     {
         voteCoImp_ = VotingCoordinator(_baseModule);
-        this.isCurrent(); // TEST this might fail on deploy
         minimumVotes = _minVotes;
         minimumWeight = _minWeight;
     }
@@ -119,14 +117,18 @@ contract GeneralCensus is BaseSubModule {
      *          executed or dismissed.
      */
     function executeProposal(uint256 _propID) external {
-        this.isCurrent();
+        VoteStorage voteStorage = VoteStorage(
+            baseModule_.getModuleFromBase(
+                BaseDaoLibrary.VoteStorage
+            )
+        );
 
         require(
-           storageImp_.isProposalInVoteWindow(_propID) == false,
+           voteStorage.isProposalInVoteWindow(_propID) == false,
            "Cannot execute while vote open"
         );
         require(
-            storageImp_.isProposalExecutedOrDismissed(_propID) == false,
+            voteStorage.isProposalExecutedOrDismissed(_propID) == false,
            "Proposal executed or dismissed"
         );
 
@@ -143,17 +145,7 @@ contract GeneralCensus is BaseSubModule {
             // Proposal did not reach consensus or did not pass
         }
         // Setting the proposal to executed or dismissed
-        storageImp_.setProposalExecutedOrDismissed(_propID);
-    }
-
-    /**
-     * @notice  Ensures that the current storage implementation is correct.
-     */
-    function isCurrent() external {
-        address received = voteCoImp_.getStorage();
-        if(address(storageImp_) != received) {
-            storageImp_ = VoteStorage(received);
-        }
+        voteStorage.setProposalExecutedOrDismissed(_propID);
     }
 
     // -------------------------------------------------------------------------
